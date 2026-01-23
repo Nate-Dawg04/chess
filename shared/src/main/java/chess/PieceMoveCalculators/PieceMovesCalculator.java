@@ -89,16 +89,11 @@ public interface PieceMovesCalculator {
 //        New position must be within bounds
 //        AND either null or a piece of the opposing team
 
-        if (        row <= 8
+        return row <= 8
                 && row >= 1
                 && col <= 8
                 && col >= 1
-                && (board.getPiece(new ChessPosition(row,col)) == null || board.getPiece(new ChessPosition(row,col)).getTeamColor() != yourColor)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
+                && (board.getPiece(new ChessPosition(row, col)) == null || board.getPiece(new ChessPosition(row, col)).getTeamColor() != yourColor);
     }
 
 }
