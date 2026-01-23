@@ -45,14 +45,12 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        // Add the white pieces that aren't pawns
-        addOtherPieces(ChessGame.TeamColor.WHITE);
-        // Add the black pieces that aren't pawns
-        addOtherPieces(ChessGame.TeamColor.BLACK);
+        // Add the white and black pieces that aren't pawns
+        addOtherPieces();
         // Add all the pawns
         addPawns();
         // Make all the other rows full of null values
-        makeNullRows();
+        //makeNullRows();
     }
 
 
@@ -85,37 +83,121 @@ public class ChessBoard {
     }
 
     /* Adds all the non pawn pieces to the board for a specific color */
-    private void addOtherPieces(ChessGame.TeamColor color){
+    private void addOtherPieces(){
         // Array containing all the pieces in the correct order
         ChessPiece.PieceType[] pieceOrder = {ChessPiece.PieceType.ROOK,ChessPiece.PieceType.KNIGHT,
                 ChessPiece.PieceType.BISHOP,ChessPiece.PieceType.QUEEN,ChessPiece.PieceType.KING,
                 ChessPiece.PieceType.BISHOP,ChessPiece.PieceType.KNIGHT,ChessPiece.PieceType.ROOK};
 
         int col = 1;
-        if (color == ChessGame.TeamColor.WHITE){
-            for (ChessPiece.PieceType piece : pieceOrder){
-                addPiece(new ChessPosition(1,col),
-                        new ChessPiece(ChessGame.TeamColor.WHITE, piece));
-                col++;
-            }
-        // add the black pieces to the board
-        } else {
-            for (ChessPiece.PieceType piece : pieceOrder){
-                addPiece(new ChessPosition(7,col),
-                        new ChessPiece(ChessGame.TeamColor.BLACK, piece));
-                col++;
-            }
+        for (ChessPiece.PieceType piece : pieceOrder){
+            addPiece(new ChessPosition(1,col),
+                    new ChessPiece(ChessGame.TeamColor.WHITE, piece));
+            col++;
         }
+
+        // add the black pieces to the board
+        col = 1;
+        for (ChessPiece.PieceType piece : pieceOrder){
+            addPiece(new ChessPosition(8,col),
+                    new ChessPiece(ChessGame.TeamColor.BLACK, piece));
+            col++;
+        }
+
     }
 
     /* make all the middle rows of the board null for the reset functionality */
-    private void makeNullRows(){
-        for (int row = 3; row <=6; row++){
-            for (int col=1; col <=8; col++){
-                board[row-1][col-1] = null;
+//    private void makeNullRows(){
+//        for (int row = 3; row <=6; row++){
+//            for (int col=1; col <=8; col++){
+//                board[row-1][col-1] = null;
+//            }
+//        }
+//    }
+
+    @Override
+    public String toString() {
+//        String boardString = "";
+//        for (int row = 8; row>=1; row--){
+//            boardString += "|";
+//            for (int col=1; col<=8; col++){
+//                boardString += pieceString(getPiece(new ChessPosition(row,col)));
+//                if (col != 8){
+//                    boardString += "|";
+//                }
+//            }
+//            boardString += "|\n";
+//        }
+//        return boardString;
+
+        StringBuilder boardString = new StringBuilder();
+        for (int row = 8; row>=1; row--){
+            boardString.append("|");
+            for (int col=1; col<=8; col++){
+                boardString.append(pieceString(getPiece(new ChessPosition(row,col))));
+                if (col != 8){
+                    boardString.append("|");
+                }
             }
+            boardString.append("|\n");
         }
+        return boardString.toString();
     }
 
-
+    private char pieceString(ChessPiece piece){
+        // If the spot is null, return a space
+        if (piece != null){
+            // Rook case
+            if (piece.getPieceType() == ChessPiece.PieceType.ROOK){
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    return 'R';
+                } else {
+                    return 'r';
+                }
+            }
+            // Knight case
+            if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT){
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    return 'N';
+                } else {
+                    return 'n';
+                }
+            }
+            // Bishop case
+            if (piece.getPieceType() == ChessPiece.PieceType.BISHOP){
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    return 'B';
+                } else {
+                    return 'b';
+                }
+            }
+            // Queen case
+            if (piece.getPieceType() == ChessPiece.PieceType.QUEEN){
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    return 'Q';
+                } else {
+                    return 'q';
+                }
+            }
+            // King case
+            if (piece.getPieceType() == ChessPiece.PieceType.KING){
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    return 'K';
+                } else {
+                    return 'k';
+                }
+            }
+            // Pawn case
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN){
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                    return 'P';
+                } else {
+                    return 'p';
+                }
+            }
+        } else {
+            return ' ';
+        }
+        return 0;
+    }
 }
