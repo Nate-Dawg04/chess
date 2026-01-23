@@ -5,9 +5,9 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 public interface PieceMovesCalculator {
     /* Returns all the possible moves for a piece */
@@ -15,7 +15,7 @@ public interface PieceMovesCalculator {
 
     // Check diagonally and return valid moves
     default Collection<ChessMove> checkDiagonals(ChessBoard board, ChessPosition position){
-        List<ChessMove> diagonalMoves = new ArrayList<>(0);
+        Set<ChessMove> diagonalMoves = new HashSet<>(0);
 //        Now check for possible moves in each direction
 
         int initialCol = position.getColumn();
@@ -87,7 +87,7 @@ public interface PieceMovesCalculator {
 
     // Check horizontally and vertically and return valid moves
     default Collection<ChessMove> checkHorizAndVertic(ChessBoard board, ChessPosition position){
-        List<ChessMove> horizAndVerticMoves = new ArrayList<>(0);
+        Set<ChessMove> horizAndVerticMoves = new HashSet<>(0);
 //        Now check for possible moves in each direction
 
         int initialCol = position.getColumn();
@@ -155,7 +155,7 @@ public interface PieceMovesCalculator {
 
     // Check in the spaces immediately around a piece (all directions) and return valid moves
     default Collection<ChessMove> checkAround(ChessBoard board, ChessPosition position){
-        List<ChessMove> aroundMoves = new ArrayList<>(0);
+        Set<ChessMove> aroundMoves = new HashSet<>(0);
 
         int initialCol = position.getColumn();
         int initialRow = position.getRow();
