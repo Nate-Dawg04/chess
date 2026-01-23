@@ -190,6 +190,9 @@ public interface PieceMovesCalculator {
 
     /* Returns true if moving to this spot would capture a piece */
     default boolean capturesPiece(ChessBoard board, int row, int col, ChessGame.TeamColor yourColor){
+        if (emptySpot(board,row,col)){
+            return false;
+        }
         return board.getPiece(new ChessPosition(row, col)).getTeamColor() != yourColor;
     }
 
