@@ -45,7 +45,14 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        // Add the white pieces that aren't pawns
+        addOtherPieces(ChessGame.TeamColor.WHITE);
+        // Add the black pieces that aren't pawns
+        addOtherPieces(ChessGame.TeamColor.BLACK);
+        // Add all the pawns
+        addPawns();
+        // Make all the other rows full of null values
+        makeNullRows();
     }
 
 
@@ -62,4 +69,53 @@ public class ChessBoard {
     public int hashCode() {
         return Arrays.deepHashCode(board);
     }
+
+    // add all the pawns to the board
+    private void addPawns(){
+        for (int col = 1; col<=8; col++){
+            // add all the pawns to the board
+            addPiece(new ChessPosition(2,col),
+                    new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+        }
+        for (int col = 1; col<=8; col++){
+            // add all the pawns to the board
+            addPiece(new ChessPosition(7,col),
+                    new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+        }
+    }
+
+    /* Adds all the non pawn pieces to the board for a specific color */
+    private void addOtherPieces(ChessGame.TeamColor color){
+        // Array containing all the pieces in the correct order
+        ChessPiece.PieceType[] pieceOrder = {ChessPiece.PieceType.ROOK,ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.BISHOP,ChessPiece.PieceType.QUEEN,ChessPiece.PieceType.KING,
+                ChessPiece.PieceType.BISHOP,ChessPiece.PieceType.KNIGHT,ChessPiece.PieceType.ROOK};
+
+        int col = 1;
+        if (color == ChessGame.TeamColor.WHITE){
+            for (ChessPiece.PieceType piece : pieceOrder){
+                addPiece(new ChessPosition(1,col),
+                        new ChessPiece(ChessGame.TeamColor.WHITE, piece));
+                col++;
+            }
+        // add the black pieces to the board
+        } else {
+            for (ChessPiece.PieceType piece : pieceOrder){
+                addPiece(new ChessPosition(7,col),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, piece));
+                col++;
+            }
+        }
+    }
+
+    /* make all the middle rows of the board null for the reset functionality */
+    private void makeNullRows(){
+        for (int row = 3; row <=6; row++){
+            for (int col=1; col <=8; col++){
+                board[row-1][col-1] = null;
+            }
+        }
+    }
+
+
 }
