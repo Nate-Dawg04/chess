@@ -161,7 +161,14 @@ public interface PieceMovesCalculator {
         int initialRow = position.getRow();
         ChessGame.TeamColor yourColor = board.getPiece(position).getTeamColor();
 
-
+        // Checks the squares surrounding the position of the piece
+        for (int tempRow = initialRow-1; tempRow <= initialRow+1; tempRow++){
+            for (int tempCol = initialCol-1; tempCol <= initialCol+1; tempCol++){
+                if (validSpace(board,tempRow,tempCol,yourColor)) {
+                    aroundMoves.add(new ChessMove(new ChessPosition(initialRow,initialCol), new ChessPosition(tempRow,tempCol),null));
+                }
+            }
+        }
         return aroundMoves;
     }
 
