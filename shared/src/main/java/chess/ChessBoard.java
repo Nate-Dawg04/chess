@@ -26,7 +26,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
 //        subtract one because arrays are 0 based (while the moves are 1 based)
-        board[position.getColumn()-1][position.getRow()-1] = piece;
+        board[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
     /**
@@ -37,7 +37,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return board[position.getColumn()-1][position.getRow()-1];
+        return board[position.getRow()-1][position.getColumn()-1];
     }
 
     /**
@@ -45,6 +45,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        board = new ChessPiece[8][8];
         // Add the white and black pieces that aren't pawns
         addOtherPieces();
         // Add all the pawns
