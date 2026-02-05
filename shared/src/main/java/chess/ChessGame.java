@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -9,15 +11,16 @@ import java.util.Set;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame implements Cloneable {
+public class ChessGame {
 
     private TeamColor teamTurn;
     ChessBoard board;
 
     public ChessGame() {
-//        board = new ChessBoard();
-//        // Add all the pieces to the board
-//        board.resetBoard();
+        board = new ChessBoard();
+        // Add all the pieces to the board
+        board.resetBoard();
+        setTeamTurn(TeamColor.WHITE);
     }
 
     /**
@@ -34,17 +37,6 @@ public class ChessGame implements Cloneable {
      */
     public void setTeamTurn(TeamColor team) {
         this.teamTurn = team;
-    }
-
-    @Override
-    public ChessGame clone() {
-        try {
-            ChessGame clone = (ChessGame) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
     }
 
     /**
@@ -67,7 +59,35 @@ public class ChessGame implements Cloneable {
         // Simulate each of those moves and check whether doing
         // that move would leave the King in check.
         // If not, add the move to the valid moves list.
-        return Set.of();
+
+        // Get the piece at the given position
+        ChessPiece piece = board.getPiece(startPosition);
+        // Return null if there isn't a piece in that location
+        if (piece == null){
+            return null;
+        }
+        // Get all the possible moves for that piece
+        Collection<ChessMove> allMoves = piece.pieceMoves(board,startPosition);
+        // List to hold all the valid moves
+        Collection<ChessMove> validMovesSet = new HashSet<>(0);
+
+        // Check whether executing each move results in the King being in check
+        for (ChessMove move : allMoves){
+            // Create a new game and a copy of the board to simulate the move
+            ChessGame copyGame = new ChessGame();
+            ChessBoard copyBoard = board.clone();
+            copyGame.setBoard(copyBoard);
+
+            // First add the piece to the new spot
+            copyBoard.addPiece(move.getEndPosition(),piece);
+            // Then remove the piece from the old spot
+            copyBoard.board[startPosition.getRow()-1][startPosition.getColumn()-1] = null;
+            // Then check if making that move puts the king in check
+            if (!copyGame.isInCheck(piece.getTeamColor())){
+                validMovesSet.add(move);
+            }
+        }
+        return validMovesSet;
     }
 
     /**
@@ -77,6 +97,9 @@ public class ChessGame implements Cloneable {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // First check if the move is in the validMoves for that position
+        // Check if it's the correct teams turn as well??
+        // If not, throw exception
         throw new RuntimeException("Not implemented");
     }
 
@@ -150,5 +173,19 @@ public class ChessGame implements Cloneable {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamTurn == chessGame.teamTurn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, board);
     }
 }
