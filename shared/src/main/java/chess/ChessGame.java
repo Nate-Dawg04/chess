@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -8,15 +9,15 @@ import java.util.Collection;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame {
+public class ChessGame implements Cloneable {
 
     private TeamColor teamTurn;
     ChessBoard board;
 
     public ChessGame() {
-        board = new ChessBoard();
-        // Add all the pieces to the board
-        board.resetBoard();
+//        board = new ChessBoard();
+//        // Add all the pieces to the board
+//        board.resetBoard();
     }
 
     /**
@@ -35,6 +36,17 @@ public class ChessGame {
         this.teamTurn = team;
     }
 
+    @Override
+    public ChessGame clone() {
+        try {
+            ChessGame clone = (ChessGame) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -51,7 +63,11 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        // Get all the moves for the piece at that position
+        // Simulate each of those moves and check whether doing
+        // that move would leave the King in check.
+        // If not, add the move to the valid moves list.
+        return Set.of();
     }
 
     /**
