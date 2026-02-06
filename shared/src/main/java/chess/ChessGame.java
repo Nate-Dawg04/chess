@@ -97,10 +97,42 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // Check if there's a piece in the location, if not throw exception
+        if (board.getPiece(move.getStartPosition()) == null){
+            throw new InvalidMoveException();
+        }
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        // Check if they're attempting to move one of their own pieces
+        // If not throw an exception
+        if (piece.getTeamColor() != getTeamTurn()){
+            throw new InvalidMoveException();
+        }
+
         // First check if the move is in the validMoves for that position
-        // Check if it's the correct teams turn as well??
-        // If not, throw exception
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> valMoves = validMoves(move.getStartPosition());
+        // Throw an exception if the move isn't in the valid moves
+        if (!valMoves.contains(move)){
+            throw new InvalidMoveException();
+        }
+
+        // Now execute the move
+        // Add the piece to the new spot
+        // Check if there's a promotion piece. If so, add that piece
+        if (move.getPromotionPiece() != null){
+            board.addPiece(move.getEndPosition(),new ChessPiece(piece.getTeamColor(),move.getPromotionPiece()));
+        } else {
+            board.addPiece(move.getEndPosition(),piece);
+        }
+        // Set the old spot to null (empty)
+        board.board[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+
+        // Change the team's turn to the other team
+        if (piece.getTeamColor() == TeamColor.BLACK){
+            setTeamTurn(TeamColor.WHITE);
+        } else {
+            setTeamTurn(TeamColor.BLACK);
+        }
     }
 
     /**
