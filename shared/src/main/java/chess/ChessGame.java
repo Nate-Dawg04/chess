@@ -54,10 +54,6 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        // Get all the moves for the piece at that position
-        // Simulate each of those moves and check whether doing
-        // that move would leave the King in check.
-        // If not, add the move to the valid moves list.
 
         // Get the piece at the given position
         ChessPiece piece = board.getPiece(startPosition);
@@ -142,7 +138,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
         int rowCounter = 1;
         // Loop through each row
         for (ChessPiece[] row : board.board){
@@ -175,7 +170,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> allValidMoves = getTeamValidMoves(teamColor);
+        return allValidMoves.isEmpty() && isInCheck(teamColor);
     }
 
     /**
@@ -205,6 +201,30 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    /**
+     * Gets all possible valid moves for a given TeamColor
+     *
+     * @return a HashSet containing those moves
+     */
+    public Collection<ChessMove> getTeamValidMoves(TeamColor teamColor){
+        Collection<ChessMove> allValidMoves = new HashSet<>();
+        // Loop through the entire board, and collect all the valid moves
+        int rowCount = 1;
+        for (ChessPiece[] row : board.board){
+            // Loop through each piece in the row
+            int colCount = 1;
+            for (ChessPiece piece : row) {
+                // Check if there's a piece in the location, and it's the opposing teams piece
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    allValidMoves.addAll(validMoves(new ChessPosition(rowCount,colCount)));
+                }
+                colCount++;
+            }
+            rowCount++;
+        }
+        return allValidMoves;
     }
 
     @Override
