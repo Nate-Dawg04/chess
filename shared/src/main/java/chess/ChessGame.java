@@ -54,7 +54,6 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-
         // Get the piece at the given position
         ChessPiece piece = board.getPiece(startPosition);
 
@@ -80,6 +79,7 @@ public class ChessGame {
             copyBoard.board[startPosition.getRow()-1][startPosition.getColumn()-1] = null;
             // Then check if making that move puts the king in check
             if (!copyGame.isInCheck(piece.getTeamColor())){
+                // Add move if it doesn't put king in check
                 validMovesSet.add(move);
             }
         }
@@ -187,24 +187,6 @@ public class ChessGame {
     }
 
     /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
-        this.board = board;
-    }
-
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
-    public ChessBoard getBoard() {
-        return board;
-    }
-
-    /**
      * Gets all possible valid moves for a given TeamColor
      *
      * @return a HashSet containing those moves
@@ -226,6 +208,24 @@ public class ChessGame {
             rowCount++;
         }
         return allValidMoves;
+    }
+
+    /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board the new board to use
+     */
+    public void setBoard(ChessBoard board) {
+        this.board = board;
+    }
+
+    /**
+     * Gets the current chessboard
+     *
+     * @return the chessboard
+     */
+    public ChessBoard getBoard() {
+        return board;
     }
 
     @Override
