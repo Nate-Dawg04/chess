@@ -76,7 +76,7 @@ public class ChessGame {
             // First add the piece to the new spot
             copyBoard.addPiece(move.getEndPosition(),piece);
             // Then remove the piece from the old spot
-            copyBoard.board[startPosition.getRow()-1][startPosition.getColumn()-1] = null;
+            copyBoard.removePiece(new ChessPosition(startPosition.getRow(),startPosition.getColumn()));
             // Then check if making that move puts the king in check
             if (!copyGame.isInCheck(piece.getTeamColor())){
                 // Add move if it doesn't put king in check
@@ -120,8 +120,8 @@ public class ChessGame {
         } else {
             board.addPiece(move.getEndPosition(),piece);
         }
-        // Set the old spot to null (empty)
-        board.board[move.getStartPosition().getRow()-1][move.getStartPosition().getColumn()-1] = null;
+        // Remove the piece from the old position
+        board.removePiece(new ChessPosition(move.getStartPosition().getRow(),move.getStartPosition().getColumn()));
 
         // Change the team's turn to the other team
         if (piece.getTeamColor() == TeamColor.BLACK){

@@ -30,6 +30,15 @@ public class ChessBoard implements Cloneable {
     }
 
     /**
+     * Removes a piece from the designated ChessPosition
+     *
+     * @param position where to remove the piece
+     */
+    public void removePiece(ChessPosition position){
+        board[position.getRow()-1][position.getColumn()-1] = null;
+    }
+
+    /**
      * Gets a chess piece on the chessboard
      *
      * @param position The position to get the piece from
@@ -54,21 +63,6 @@ public class ChessBoard implements Cloneable {
         //makeNullRows();
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(board, that.board);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.deepHashCode(board);
-    }
-
     // add all the pawns to the board
     private void addPawns(){
         for (int col = 1; col<=8; col++){
@@ -82,6 +76,7 @@ public class ChessBoard implements Cloneable {
                     new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
     }
+
 
     /* Adds all the non pawn pieces to the board for a specific color */
     private void addOtherPieces(){
@@ -107,22 +102,12 @@ public class ChessBoard implements Cloneable {
 
     }
 
-    @Override
-    public String toString() {
-        StringBuilder boardString = new StringBuilder();
-        for (int row = 8; row>=1; row--){
-            boardString.append("|");
-            for (int col=1; col<=8; col++){
-                boardString.append(pieceString(getPiece(new ChessPosition(row,col))));
-                if (col != 8){
-                    boardString.append("|");
-                }
-            }
-            boardString.append("|\n");
-        }
-        return boardString.toString();
-    }
-
+    /**
+     * pieceString is used in the toString method to generate a nice-looking chess board
+     *
+     * @param piece the piece that needs a string representation
+     * @return the character representing the piece
+     */
     private char pieceString(ChessPiece piece){
         // If the spot is null, return a space
         if (piece != null){
@@ -181,6 +166,36 @@ public class ChessBoard implements Cloneable {
     }
 
     @Override
+    public String toString() {
+        StringBuilder boardString = new StringBuilder();
+        for (int row = 8; row>=1; row--){
+            boardString.append("|");
+            for (int col=1; col<=8; col++){
+                boardString.append(pieceString(getPiece(new ChessPosition(row,col))));
+                if (col != 8){
+                    boardString.append("|");
+                }
+            }
+            boardString.append("|\n");
+        }
+        return boardString.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(board, that.board);
+    }
+
+    @Override
     public ChessBoard clone() {
         try {
             ChessBoard clone = (ChessBoard) super.clone();
@@ -197,4 +212,5 @@ public class ChessBoard implements Cloneable {
             throw new AssertionError();
         }
     }
+
 }
