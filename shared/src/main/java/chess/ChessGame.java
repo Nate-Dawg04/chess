@@ -3,7 +3,6 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -62,6 +61,7 @@ public class ChessGame {
 
         // Get the piece at the given position
         ChessPiece piece = board.getPiece(startPosition);
+
         // Return null if there isn't a piece in that location
         if (piece == null){
             return null;

@@ -107,30 +107,8 @@ public class ChessBoard implements Cloneable {
 
     }
 
-    /* make all the middle rows of the board null for the reset functionality */
-//    private void makeNullRows(){
-//        for (int row = 3; row <=6; row++){
-//            for (int col=1; col <=8; col++){
-//                board[row-1][col-1] = null;
-//            }
-//        }
-//    }
-
     @Override
     public String toString() {
-//        String boardString = "";
-//        for (int row = 8; row>=1; row--){
-//            boardString += "|";
-//            for (int col=1; col<=8; col++){
-//                boardString += pieceString(getPiece(new ChessPosition(row,col)));
-//                if (col != 8){
-//                    boardString += "|";
-//                }
-//            }
-//            boardString += "|\n";
-//        }
-//        return boardString;
-
         StringBuilder boardString = new StringBuilder();
         for (int row = 8; row>=1; row--){
             boardString.append("|");
@@ -206,10 +184,13 @@ public class ChessBoard implements Cloneable {
     public ChessBoard clone() {
         try {
             ChessBoard clone = (ChessBoard) super.clone();
-            int rowCount = 0;
-            for (ChessPiece[] row : board){
-                clone.board[rowCount] = Arrays.copyOf(row, row.length);
-                rowCount++;
+            clone.board  = new ChessPiece[8][8];
+            for (int i = 0; i<8; i++){
+                for (int j = 0; j < 8; j++){
+                    clone.board[i][j] = board[i][j] != null
+                            ? board[i][j].clone()
+                            : null;
+                }
             }
             return clone;
         } catch (CloneNotSupportedException e) {
