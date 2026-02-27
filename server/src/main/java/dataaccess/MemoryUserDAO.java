@@ -1,6 +1,6 @@
 package dataaccess;
 
-import dataaccess.model.UserData;
+import model.UserData;
 
 import java.util.HashMap;
 
@@ -11,6 +11,8 @@ public class MemoryUserDAO implements UserDAO{
         return users.get(username);
     }
 
-
+    public void createUser(UserData user) {
+        users.put(user.username(),user);
+    }
 
 }

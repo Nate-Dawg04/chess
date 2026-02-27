@@ -1,16 +1,18 @@
 package server;
 
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import io.javalin.*;
 import server.handlers.*;
-import service.UserService;
+import service.Service;
 
 public class Server {
 
     private final Javalin javalin;
 
     public Server() {
-        UserService service = new UserService(new MemoryUserDAO());
+        Service service = new Service(new MemoryUserDAO(),new MemoryAuthDAO(), new MemoryGameDAO());
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", new registerHandler(service));
 

@@ -1,25 +1,31 @@
 package service;
 
-import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import dataaccess.model.UserData;
+import dataaccess.exceptions.AlreadyTakenException;
+import model.*;
 import server.requests.*;
 import server.results.*;
 
-public class UserService {
+public class UserService extends Service {
 
-    private final UserDAO dataAccess;
-
-    public UserService(UserDAO dataAccess) {
-        this.dataAccess = dataAccess;
+    public UserService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        super(userDAO, authDAO, gameDAO);
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException {
         // Check to see if username is already taken
-        if (dataAccess.getUser(registerRequest.username()) != null){
+        if (userDAO.getUser(registerRequest.username()) != null){
             throw new AlreadyTakenException("Username already taken");
         }
         UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+
+        userDAO.createUser(user);
+        AuthData authData = new AuthData(generateAuthString(),user.username());
+        authDAO.createAuth(authData);
+
+        return new RegisterResult("","");
 
     // 1. Verify the input
     // 1.5 Validate the passed in authToken
@@ -28,6 +34,8 @@ public class UserService {
     // 4. Insert new User into the database by calling UserDao.createUser (u)
     // 5. Login the user (create a new AuthToken model object, insert it into the database)
     // 6. Create a RegisterResult and return
+
+
 
     }
 
