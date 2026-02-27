@@ -25,7 +25,7 @@ public class UserService extends Service {
         AuthData authData = new AuthData(generateAuthString(),user.username());
         authDAO.createAuth(authData);
 
-        return new RegisterResult("","");
+        return new RegisterResult(user.username(),authData.authToken());
 
     // 1. Verify the input
     // 1.5 Validate the passed in authToken
