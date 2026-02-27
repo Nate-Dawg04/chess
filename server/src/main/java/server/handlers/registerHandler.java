@@ -8,6 +8,7 @@ import server.results.RegisterResult;
 import service.UserService;
 
 public class registerHandler implements Handler {
+
     public void handle(Context context){
         String jsonResponse = context.body();
         Gson gson = new Gson();

@@ -1,5 +1,7 @@
 package dataaccess;
 
+import dataaccess.model.UserData;
+
 public interface UserDAO {
-     getUser(String username) throws DataAccessException;
+     UserData getUser(String username);
 }
