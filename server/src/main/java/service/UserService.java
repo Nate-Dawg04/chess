@@ -15,6 +15,9 @@ public class UserService extends Service {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException {
+        // Validate the input here (none of it null), throw BadRequestException if something is wrong
+        // Still need to do this part
+
         // Check to see if username is already taken
         if (userDAO.getUser(registerRequest.username()) != null){
             throw new AlreadyTakenException("already taken");

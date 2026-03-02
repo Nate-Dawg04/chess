@@ -1,23 +1,29 @@
 package server.handlers;
 
+import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
+import server.requests.ClearRequest;
+import server.requests.RegisterRequest;
+import server.results.ClearResult;
+import service.ClearService;
+import service.UserService;
 
 public class clearHandler implements Handler {
-    private final UserDAO userDAO;
-    private final AuthDAO authDAO;
-    private final GameDAO gameDAO;
+    private final ClearService clearService;
 
-    public clearHandler(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO){
-        this.userDAO = userDAO;
-        this.authDAO = authDAO;
-        this.gameDAO = gameDAO;
+    public clearHandler(ClearService clearService){
+        this.clearService = clearService;
     }
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
-
+        Gson gson = new Gson();
+        ClearRequest clearRequest = gson.fromJson(context.body(), ClearRequest.class);
+        ClearResult clearResult = clearService.clear((clearRequest));
+        context.status(200);
+        context.json(gson.toJson(clearResult));
     }
 }
