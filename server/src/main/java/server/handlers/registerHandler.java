@@ -16,10 +16,14 @@ public class registerHandler implements Handler {
     }
 
     public void handle(Context context) throws AlreadyTakenException {
-        String jsonResponse = context.body();
         Gson gson = new Gson();
-        RegisterRequest registerRequest = gson.fromJson(jsonResponse, RegisterRequest.class);
-        RegisterResult registerResult = userService.register(registerRequest);
+        RegisterRequest registerRequest = gson.fromJson(context.body(), RegisterRequest.class);
+        RegisterResult registerResult;
+        try {
+            registerResult = userService.register(registerRequest);
+        } catch (AlreadyTakenException ex) {
+            throw new AlreadyTakenException("already taken");
+        }
         context.status(200);
         context.json(gson.toJson(registerResult));
     }
