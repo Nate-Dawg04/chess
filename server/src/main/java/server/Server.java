@@ -33,6 +33,7 @@ public class Server {
                 .post("/session", new loginHandler(userService))
                 .delete("/session", new logoutHandler(userService))
                 .get("/game", new listGamesHandler(gameService))
+                .post("/game", new createGameHandler(gameService))
                 .delete("/db",new clearHandler(clearService));
     }
 

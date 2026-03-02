@@ -17,7 +17,7 @@ public class listGamesHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
+    public void handle(@NotNull Context context) throws UnauthorizedException {
         Gson gson = new Gson();
         ListGamesRequest listGamesRequest = new ListGamesRequest(context.header("authorization"));
         ListGamesResult listGamesResult;

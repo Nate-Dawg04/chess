@@ -7,6 +7,8 @@ import dataaccess.exceptions.UnauthorizedException;
 import server.requests.ListGamesRequest;
 import server.results.ListGamesResult;
 
+import java.util.ArrayList;
+
 public class GameService extends Service{
     public GameService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
         super(userDAO, authDAO, gameDAO);
@@ -21,8 +23,7 @@ public class GameService extends Service{
         } catch (UnauthorizedException ex){
             throw new UnauthorizedException(ex.getMessage());
         }
-
-
+        return new ListGamesResult(gameDAO.getAllGames());
     }
 
 }

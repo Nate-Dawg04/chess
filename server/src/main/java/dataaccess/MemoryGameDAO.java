@@ -5,21 +5,28 @@ import java.util.HashMap;
 
 import chess.ChessGame;
 import model.GameData;
+import model.ListGamesGameData;
+import server.results.ListGamesResult;
 
 public class MemoryGameDAO implements GameDAO{
-    // Maps a ChessGame to it's GameData, maybe change to be a String for the gameID?
-    // Would need to convert the int gameID to a string for when accessing the GameData...
-    final private HashMap<ChessGame, GameData> allGameData = new HashMap<>();
+    // Maps the name of the game to the corresponding GameData
+    final private HashMap<String, GameData> allGameData = new HashMap<>();
 
     public void deleteAllGameData(){
         allGameData.clear();
     }
 
     @Override
-    public ArrayList<GameData> getAllGames() {
+    public ArrayList<ListGamesGameData> getAllGames() {
         //Need to return something that can be easily converted to the correct format
             //in the ListGamesResult object
-        return null;
+        ArrayList<ListGamesGameData> allGames = new ArrayList<>();
+        for (GameData gameData : allGameData.values()) {
+            // Create the new objects excluding the final Chessgame value in GameData
+            allGames.add(new ListGamesGameData(gameData.gameID(),gameData.whiteUsername(),
+                    gameData.blackUsername(), gameData.gameName()));
+        }
+        return allGames;
     }
 
 }
