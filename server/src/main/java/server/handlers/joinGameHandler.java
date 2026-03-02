@@ -1,11 +1,14 @@
 package server.handlers;
 
+import com.google.gson.Gson;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
+import server.requests.JoinGameRequest;
+import server.results.JoinGameResult;
 import service.GameService;
 
 public class joinGameHandler implements Handler {
@@ -17,6 +20,21 @@ public class joinGameHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context context) throws BadRequestException, UnauthorizedException, AlreadyTakenException {
-
+        Gson gson = new Gson();
+        JoinGameRequest tempJoinGameRequest = gson.fromJson(context.body(), JoinGameRequest.class);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(context.header("authorization"),
+                tempJoinGameRequest.playerColor(), tempJoinGameRequest.gameID());
+        JoinGameResult joinGameResult;
+        try {
+            joinGameResult = gameService.joinGame(joinGameRequest);
+        } catch (UnauthorizedException ex) {
+            throw new UnauthorizedException(ex.getMessage());
+        } catch (BadRequestException ex) {
+            throw new BadRequestException(ex.getMessage());
+        } catch (AlreadyTakenException ex) {
+            throw new AlreadyTakenException(ex.getMessage());
+        }
+        context.status(200);
+        context.json(gson.toJson(joinGameResult));
     }
 }

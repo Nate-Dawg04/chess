@@ -13,10 +13,11 @@ public class MemoryAuthDAO implements AuthDAO{
         allAuthData.put(authData.authToken(), authData.username());
     }
 
-    public void getAuth(String authToken) throws UnauthorizedException {
+    public String getAuth(String authToken) throws UnauthorizedException {
         if (allAuthData.get(authToken) == null) {
             throw new UnauthorizedException("unauthorized");
         }
+        return allAuthData.get(authToken);
     }
 
     public void deleteAllAuthData(){

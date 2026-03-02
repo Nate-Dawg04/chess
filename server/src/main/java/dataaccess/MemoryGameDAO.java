@@ -33,8 +33,18 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public int createGame(String gameName) {
         gameCount++;
-        allGameData.put(gameName,new GameData(gameCount,null,null,gameName,new ChessGame()));
+        allGameData.put(String.valueOf(gameCount),new GameData(gameCount,null,null,gameName,new ChessGame()));
         return gameCount;
+    }
+
+    @Override
+    public GameData getGameData(int gameID) {
+        return allGameData.get(String.valueOf(gameID));
+    }
+
+    @Override
+    public void replaceGame(int gameID, GameData newGame) {
+        allGameData.replace(String.valueOf(gameID),newGame);
     }
 
 

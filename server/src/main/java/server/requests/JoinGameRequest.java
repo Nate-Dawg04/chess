@@ -1,4 +1,4 @@
 package server.requests;
 
-public record JoinGameRequest() {
+public record JoinGameRequest(String authToken, String playerColor, int gameID) {
 }
