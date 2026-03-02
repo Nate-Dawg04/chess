@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;
@@ -27,6 +28,7 @@ public class Server {
                 .get("/error", this::throwException)
                 .exception(Exception.class, this::exceptionHandler)
                 .post("/user", new registerHandler(userService))
+                .post("/session", new loginHandler(userService))
                 .delete("/db",new clearHandler(clearService));
     }
 
@@ -49,6 +51,10 @@ public class Server {
             context.status(403);
         } else if (e.getClass() == BadRequestException.class) {
             context.status(400);
+        } else if (e.getClass() == UnauthorizedException.class) {
+            context.status(401);
+        } else {
+            context.status(500);
         }
         context.json(body);
     }

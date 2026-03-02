@@ -1,0 +1,35 @@
+package server.handlers;
+
+import com.google.gson.Gson;
+import dataaccess.exceptions.*;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
+import org.jetbrains.annotations.NotNull;
+import server.requests.LoginRequest;
+import server.results.LoginResult;
+import service.UserService;
+
+public class loginHandler implements Handler {
+    private final UserService userService;
+
+    public loginHandler(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public void handle(@NotNull Context context) throws BadRequestException, UnauthorizedException {
+        Gson gson = new Gson();
+        LoginRequest loginRequest = gson.fromJson(context.body(), LoginRequest.class);
+
+        LoginResult loginResult;
+        try {
+            loginResult = userService.login(loginRequest);
+        } catch (BadRequestException ex) {
+            throw new BadRequestException(ex.getMessage());
+        } catch (UnauthorizedException ex) {
+            throw new UnauthorizedException(ex.getMessage());
+        }
+        context.status(200);
+        context.json(gson.toJson(loginResult));
+    }
+}
