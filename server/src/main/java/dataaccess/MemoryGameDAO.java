@@ -11,6 +11,7 @@ import server.results.ListGamesResult;
 public class MemoryGameDAO implements GameDAO{
     // Maps the name of the game to the corresponding GameData
     final private HashMap<String, GameData> allGameData = new HashMap<>();
+    private int gameCount = 0;
 
     public void deleteAllGameData(){
         allGameData.clear();
@@ -28,5 +29,13 @@ public class MemoryGameDAO implements GameDAO{
         }
         return allGames;
     }
+
+    @Override
+    public int createGame(String gameName) {
+        gameCount++;
+        allGameData.put(gameName,new GameData(gameCount,null,null,gameName,new ChessGame()));
+        return gameCount;
+    }
+
 
 }
