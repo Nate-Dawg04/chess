@@ -2,6 +2,7 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
 import io.javalin.http.Handler;
 import io.javalin.http.Context;
 import server.requests.RegisterRequest;
@@ -15,14 +16,16 @@ public class registerHandler implements Handler {
         this.userService = userService;
     }
 
-    public void handle(Context context) throws AlreadyTakenException {
+    public void handle(Context context) throws AlreadyTakenException, BadRequestException {
         Gson gson = new Gson();
         RegisterRequest registerRequest = gson.fromJson(context.body(), RegisterRequest.class);
         RegisterResult registerResult;
         try {
             registerResult = userService.register(registerRequest);
         } catch (AlreadyTakenException ex) {
-            throw new AlreadyTakenException("already taken");
+            throw new AlreadyTakenException(ex.getMessage());
+        } catch (BadRequestException ex) {
+            throw new BadRequestException(ex.getMessage());
         }
         context.status(200);
         context.json(gson.toJson(registerResult));

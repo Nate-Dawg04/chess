@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;
@@ -24,12 +25,9 @@ public class Server {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)
-                .exception(AlreadyTakenException.class, this::exceptionHandler)
+                .exception(Exception.class, this::exceptionHandler)
                 .post("/user", new registerHandler(userService))
                 .delete("/db",new clearHandler(clearService));
-
-        // Register your endpoints and exception handlers here.
-
     }
 
     public int run(int desiredPort) {
@@ -49,8 +47,8 @@ public class Server {
         var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage())));
         if (e.getClass() == AlreadyTakenException.class){
             context.status(403);
-        } else {
-            context.status(500);
+        } else if (e.getClass() == BadRequestException.class) {
+            context.status(400);
         }
         context.json(body);
     }

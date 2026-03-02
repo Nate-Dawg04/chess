@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
+import dataaccess.exceptions.BadRequestException;
 import model.*;
 import server.requests.*;
 import server.results.*;
@@ -14,9 +15,17 @@ public class UserService extends Service {
         super(userDAO, authDAO, gameDAO);
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException {
+    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, BadRequestException {
         // Validate the input here (none of it null), throw BadRequestException if something is wrong
-        // Still need to do this part
+        if (registerRequest.username() == null
+            || registerRequest.password() == null
+            || registerRequest.email() == null
+            || registerRequest.username().isEmpty()
+            || registerRequest.password().isEmpty()
+            || registerRequest.email().isEmpty()
+        ){
+            throw new BadRequestException("bad request");
+        }
 
         // Check to see if username is already taken
         if (userDAO.getUser(registerRequest.username()) != null){

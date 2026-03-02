@@ -6,10 +6,8 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
 import server.requests.ClearRequest;
-import server.requests.RegisterRequest;
 import server.results.ClearResult;
 import service.ClearService;
-import service.UserService;
 
 public class clearHandler implements Handler {
     private final ClearService clearService;
