@@ -1,5 +1,6 @@
 package dataaccess;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import chess.ChessGame;
@@ -13,4 +14,12 @@ public class MemoryGameDAO implements GameDAO{
     public void deleteAllGameData(){
         allGameData.clear();
     }
+
+    @Override
+    public ArrayList<GameData> getAllGames() {
+        //Need to return something that can be easily converted to the correct format
+            //in the ListGamesResult object
+        return null;
+    }
+
 }

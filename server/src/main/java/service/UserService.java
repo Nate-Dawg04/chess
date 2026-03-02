@@ -37,10 +37,6 @@ public class UserService extends Service {
         authDAO.createAuth(authData);
 
         return new RegisterResult(user.username(),authData.authToken());
-
-
-
-
     }
 
     public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
@@ -61,11 +57,16 @@ public class UserService extends Service {
 
         AuthData authData = new AuthData(generateAuthString(),userData.username());
         authDAO.createAuth(authData);
-
         return new LoginResult(userData.username(),authData.authToken());
-
     }
 
-
-//  public void logout(LogoutRequest logoutRequest) {}
+    public LogoutResult logout(LogoutRequest logoutRequest) throws UnauthorizedException{
+        try {
+            authDAO.getAuth(logoutRequest.authToken());
+        } catch (UnauthorizedException ex){
+            throw new UnauthorizedException(ex.getMessage());
+        }
+        authDAO.deleteAuth(logoutRequest.authToken());
+        return new LogoutResult();
+    }
 }

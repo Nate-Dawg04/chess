@@ -9,6 +9,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;
 import service.ClearService;
+import service.GameService;
 import service.UserService;
 
 import java.util.Map;
@@ -22,6 +23,7 @@ public class Server {
         MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
         MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
         UserService userService = new UserService(memoryUserDAO,memoryAuthDAO, memoryGameDAO);
+        GameService gameService = new GameService(memoryUserDAO,memoryAuthDAO, memoryGameDAO);
         ClearService clearService = new ClearService(memoryUserDAO,memoryAuthDAO, memoryGameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
@@ -29,6 +31,8 @@ public class Server {
                 .exception(Exception.class, this::exceptionHandler)
                 .post("/user", new registerHandler(userService))
                 .post("/session", new loginHandler(userService))
+                .delete("/session", new logoutHandler(userService))
+                .get("/game", new listGamesHandler(gameService))
                 .delete("/db",new clearHandler(clearService));
     }
 

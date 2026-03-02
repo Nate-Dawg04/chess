@@ -1,6 +1,9 @@
 package service;
 
 import dataaccess.*;
+import dataaccess.exceptions.UnauthorizedException;
+import io.javalin.http.Context;
+import io.javalin.http.UnauthorizedResponse;
 
 import java.util.UUID;
 
