@@ -20,20 +20,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             if (position.getRow() == 2 && emptySpot(board,initialRow+2,initialCol) && emptySpot(board,initialRow+1,initialCol)){
                 pawnMoves.add(new ChessMove(position, new ChessPosition(initialRow+2,initialCol),null));
             }
-
-            //Check the three spots in front of the pawn
-            int tempRow = initialRow + 1;
-            for (int tempCol = initialCol-1; tempCol <= initialCol+1; tempCol++){
-                if (validSpace(board,tempRow,tempCol,yourColor)){
-                    // only add diagonal moves if capturing a piece
-                    // can only move forwards if the spot is empty
-                    if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol))
-                            || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))
-                    ){
-                        addPawnMoves(pawnMoves,position,tempRow,tempCol,yourColor);
-                    }
-                }
-            }
+            checkSpotsAhead(board, initialRow, initialCol, yourColor, position, pawnMoves);
 
         // If black color
         } else {
@@ -41,21 +28,31 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             if (position.getRow() == 7 && emptySpot(board,initialRow-2,initialCol) && emptySpot(board,initialRow-1,initialCol)){
                 pawnMoves.add(new ChessMove(position, new ChessPosition(initialRow-2,initialCol),null));
             }
-            //Check the three spots in front of the pawn
-            int tempRow = initialRow - 1;
-            for (int tempCol = initialCol-1; tempCol <= initialCol+1; tempCol++){
-                if (validSpace(board,tempRow,tempCol,yourColor)){
-                    // only add diagonal moves if capturing a piece
-                    // can only move forwards if the spot is empty
-                    if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol))
-                            || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))
-                    ){
-                        addPawnMoves(pawnMoves,position,tempRow,tempCol,yourColor);
-                    }
+            checkSpotsAhead(board, initialRow, initialCol, yourColor, position, pawnMoves);
+        }
+        return pawnMoves;
+    }
+
+    private void checkSpotsAhead(ChessBoard board, int initialRow, int initialCol,
+                                 ChessGame.TeamColor yourColor,ChessPosition position, Set<ChessMove> pawnMoves){
+        //Check the three spots in front of the pawn
+        int tempRow;
+        if (yourColor == ChessGame.TeamColor.WHITE){
+            tempRow = initialRow + 1;
+        } else {
+            tempRow = initialRow - 1;
+        }
+        for (int tempCol = initialCol-1; tempCol <= initialCol+1; tempCol++){
+            if (validSpace(board,tempRow,tempCol,yourColor)){
+                // only add diagonal moves if capturing a piece
+                // can only move forwards if the spot is empty
+                if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol))
+                        || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))
+                ){
+                    addPawnMoves(pawnMoves,position,tempRow,tempCol,yourColor);
                 }
             }
         }
-        return pawnMoves;
     }
 
     private void addPawnMoves(Set<ChessMove> pawnMoves, ChessPosition position,
@@ -66,7 +63,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         } else {
             conditionRow = 1;
         }
-
         // If moving onto the last row, promote piece. Add move multiple times to the list,
         // but each with a different possible promotion piece
         if (tempRow == conditionRow) {
@@ -79,5 +75,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             pawnMoves.add(new ChessMove(position, new ChessPosition(tempRow,tempCol),null));
         }
     }
+
 
 }
