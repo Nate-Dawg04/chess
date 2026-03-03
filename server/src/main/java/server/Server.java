@@ -53,6 +53,7 @@ public class Server {
 
     private void exceptionHandler(Exception e, Context context) {
         var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage())));
+        // handles different Exceptions, provides correct status code
         if (e.getClass() == AlreadyTakenException.class){
             context.status(403);
         } else if (e.getClass() == BadRequestException.class) {
