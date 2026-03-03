@@ -6,7 +6,6 @@ import java.util.HashMap;
 import chess.ChessGame;
 import model.GameData;
 import model.ListGamesGameData;
-import server.results.ListGamesResult;
 
 public class MemoryGameDAO implements GameDAO{
     // Maps the name of the game to the corresponding GameData
