@@ -21,11 +21,6 @@ public class ChessPiece implements Cloneable{
         this.type = type;
     }
 
-//    public ChessPiece(ChessPiece other){
-//        other.pieceColor = this.pieceColor;
-//        other.type = this.type;
-//    }
-
     @Override
     public ChessPiece clone() {
         try {
