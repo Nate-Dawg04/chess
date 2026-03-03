@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.AuthData;
