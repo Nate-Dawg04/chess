@@ -1,4 +1,4 @@
-package chess.PieceMoveCalculators;
+package chess.movecalculators;
 
 import chess.ChessBoard;
 import chess.ChessMove;
@@ -6,9 +6,9 @@ import chess.ChessPosition;
 
 import java.util.Collection;
 
-public class KingMovesCalculator implements PieceMovesCalculator {
+public class RookMovesCalculator implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        return checkAround(board,position);
+        return checkHorizAndVertic(board,position);
     }
 }

@@ -9,10 +9,10 @@ import server.requests.LoginRequest;
 import server.results.LoginResult;
 import service.UserService;
 
-public class loginHandler implements Handler {
+public class LoginHandler implements Handler {
     private final UserService userService;
 
-    public loginHandler(UserService userService) {
+    public LoginHandler(UserService userService) {
         this.userService = userService;
     }
 

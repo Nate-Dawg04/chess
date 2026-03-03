@@ -1,7 +1,6 @@
 package server.handlers;
 
 import com.google.gson.Gson;
-import dataaccess.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
@@ -9,10 +8,10 @@ import server.requests.ClearRequest;
 import server.results.ClearResult;
 import service.ClearService;
 
-public class clearHandler implements Handler {
+public class ClearHandler implements Handler {
     private final ClearService clearService;
 
-    public clearHandler(ClearService clearService){
+    public ClearHandler(ClearService clearService){
         this.clearService = clearService;
     }
 

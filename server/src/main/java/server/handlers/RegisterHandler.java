@@ -9,10 +9,10 @@ import server.requests.RegisterRequest;
 import server.results.RegisterResult;
 import service.*;
 
-public class registerHandler implements Handler {
+public class RegisterHandler implements Handler {
     private final UserService userService;
 
-    public registerHandler(UserService userService) {
+    public RegisterHandler(UserService userService) {
         this.userService = userService;
     }
 

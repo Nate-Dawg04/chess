@@ -29,13 +29,13 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)
                 .exception(Exception.class, this::exceptionHandler)
-                .post("/user", new registerHandler(userService))
-                .post("/session", new loginHandler(userService))
-                .delete("/session", new logoutHandler(userService))
-                .get("/game", new listGamesHandler(gameService))
-                .post("/game", new createGameHandler(gameService))
-                .put("/game", new joinGameHandler(gameService))
-                .delete("/db",new clearHandler(clearService));
+                .post("/user", new RegisterHandler(userService))
+                .post("/session", new LoginHandler(userService))
+                .delete("/session", new LogoutHandler(userService))
+                .get("/game", new ListGamesHandler(gameService))
+                .post("/game", new CreateGameHandler(gameService))
+                .put("/game", new JoinGameHandler(gameService))
+                .delete("/db",new ClearHandler(clearService));
     }
 
     public int run(int desiredPort) {

@@ -9,10 +9,10 @@ import server.requests.LogoutRequest;
 import server.results.LogoutResult;
 import service.UserService;
 
-public class logoutHandler implements Handler {
+public class LogoutHandler implements Handler {
     private final UserService userService;
 
-    public logoutHandler(UserService userService) {
+    public LogoutHandler(UserService userService) {
         this.userService = userService;
     }
 

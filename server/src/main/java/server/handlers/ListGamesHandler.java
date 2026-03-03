@@ -9,10 +9,10 @@ import server.requests.ListGamesRequest;
 import server.results.ListGamesResult;
 import service.GameService;
 
-public class listGamesHandler implements Handler {
+public class ListGamesHandler implements Handler {
     private final GameService gameService;
 
-    public listGamesHandler(GameService gameService) {
+    public ListGamesHandler(GameService gameService) {
         this.gameService = gameService;
     }
 

@@ -10,10 +10,10 @@ import server.requests.CreateGameRequest;
 import server.results.CreateGameResult;
 import service.GameService;
 
-public class createGameHandler implements Handler {
+public class CreateGameHandler implements Handler {
     private final GameService gameService;
 
-    public createGameHandler(GameService gameService) {
+    public CreateGameHandler(GameService gameService) {
         this.gameService = gameService;
     }
 

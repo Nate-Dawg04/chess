@@ -11,10 +11,10 @@ import server.requests.JoinGameRequest;
 import server.results.JoinGameResult;
 import service.GameService;
 
-public class joinGameHandler implements Handler {
+public class JoinGameHandler implements Handler {
     private final GameService gameService;
 
-    public joinGameHandler(GameService gameService) {
+    public JoinGameHandler(GameService gameService) {
         this.gameService = gameService;
     }
 
