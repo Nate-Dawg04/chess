@@ -144,16 +144,10 @@ public class ChessGame {
             int colCounter = 1;
             // Loop through each piece in the row
             for (ChessPiece piece : row){
-                // Check if there's a piece in the location, and it's the opposing teams piece
-                if (piece != null && piece.getTeamColor() != teamColor){
-                    // Now check all the possible moves that this piece can make
-                    for (ChessMove move : piece.pieceMoves(board,new ChessPosition(rowCounter,colCounter))){
-                        // Check if the piece will capture a piece with this move, and IF IT'S THE KING
-                        ChessPosition endingPosition = move.getEndPosition();
-                        if (board.getPiece(endingPosition) != null && board.getPiece(endingPosition).getPieceType() == ChessPiece.PieceType.KING){
-                            return true;
-                        }
-                    }
+                // Checks all of the individual moves that a piece can make
+                // Returns true if one of them is the King
+                if (checkMovesForKing(piece,teamColor,rowCounter,colCounter)){
+                    return true;
                 }
                 colCounter++;
             }
@@ -161,6 +155,24 @@ public class ChessGame {
         }
         return false;
 
+    }
+
+
+    private boolean checkMovesForKing(ChessPiece piece, TeamColor teamColor, int rowCounter, int colCounter){
+        // Check if there's a piece in the location, and it's the opposing teams piece
+        if (piece != null && piece.getTeamColor() != teamColor){
+            // Now check all the possible moves that this piece can make
+            for (ChessMove move : piece.pieceMoves(board,new ChessPosition(rowCounter,colCounter))){
+                // Check if the piece will capture a piece with this move, and IF IT'S THE KING
+                ChessPosition endingPosition = move.getEndPosition();
+                if (board.getPiece(endingPosition) != null
+                        && board.getPiece(endingPosition).getPieceType() == ChessPiece.PieceType.KING
+                ){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

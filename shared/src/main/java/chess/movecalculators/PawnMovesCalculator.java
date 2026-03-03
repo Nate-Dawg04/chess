@@ -27,7 +27,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                 if (validSpace(board,tempRow,tempCol,yourColor)){
                     // only add diagonal moves if capturing a piece
                     // can only move forwards if the spot is empty
-                    if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol)) || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))){
+                    if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol))
+                            || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))
+                    ){
                         addPawnMoves(pawnMoves,position,tempRow,tempCol,yourColor);
                     }
                 }
@@ -45,7 +47,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                 if (validSpace(board,tempRow,tempCol,yourColor)){
                     // only add diagonal moves if capturing a piece
                     // can only move forwards if the spot is empty
-                    if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol)) || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))){
+                    if ((tempCol == initialCol && emptySpot(board,tempRow,tempCol))
+                            || (tempCol != initialCol && capturesPiece(board,tempRow,tempCol,yourColor))
+                    ){
                         addPawnMoves(pawnMoves,position,tempRow,tempCol,yourColor);
                     }
                 }
