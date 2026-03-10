@@ -1,10 +1,11 @@
-package dataaccess;
+package dataaccess.memoryDAOs;
 
+import dataaccess.UserDAO;
 import model.UserData;
 
 import java.util.HashMap;
 
-public class MemoryUserDAO implements UserDAO{
+public class MemoryUserDAO implements UserDAO {
     final private HashMap<String, UserData> users = new HashMap<>();
 
     public UserData getUser(String username){

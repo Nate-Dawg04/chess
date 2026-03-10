@@ -1,10 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.UnauthorizedException;
+import dataaccess.memoryDAOs.MemoryAuthDAO;
+import dataaccess.memoryDAOs.MemoryGameDAO;
+import dataaccess.memoryDAOs.MemoryUserDAO;
 import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;
