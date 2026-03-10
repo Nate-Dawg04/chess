@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.databaseDAOs.SQLUserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.UnauthorizedException;
@@ -21,12 +22,17 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+        SQLUserDAO sqlUserDAO = null;
+        try {
+            sqlUserDAO = new SQLUserDAO();
+        } catch (Exception ex) {
+            System.out.println("\"Unable to start server: %s%n\", ex.getMessage()");
+        }
         MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
         MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-        UserService userService = new UserService(memoryUserDAO,memoryAuthDAO, memoryGameDAO);
-        GameService gameService = new GameService(memoryUserDAO,memoryAuthDAO, memoryGameDAO);
-        ClearService clearService = new ClearService(memoryUserDAO,memoryAuthDAO, memoryGameDAO);
+        UserService userService = new UserService(sqlUserDAO, memoryAuthDAO, memoryGameDAO);
+        GameService gameService = new GameService(sqlUserDAO, memoryAuthDAO, memoryGameDAO);
+        ClearService clearService = new ClearService(sqlUserDAO, memoryAuthDAO, memoryGameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)
@@ -37,7 +43,7 @@ public class Server {
                 .get("/game", new ListGamesHandler(gameService))
                 .post("/game", new CreateGameHandler(gameService))
                 .put("/game", new JoinGameHandler(gameService))
-                .delete("/db",new ClearHandler(clearService));
+                .delete("/db", new ClearHandler(clearService));
     }
 
     public int run(int desiredPort) {
