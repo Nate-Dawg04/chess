@@ -2,7 +2,7 @@ package dataaccess.databaseDAOs;
 
 import dataaccess.AuthDAO;
 import dataaccess.DatabaseManager;
-import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DatabaseException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.AuthData;
 
@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
 
-    public SQLAuthDAO() throws DataAccessException {
+    public SQLAuthDAO() throws DatabaseException {
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS authData (
@@ -31,19 +31,19 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void createAuth(AuthData authData) throws DataAccessException {
+    public void createAuth(AuthData authData) throws DatabaseException {
         var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
         DatabaseManager.executeUpdate(statement, authData.authToken(), authData.username());
     }
 
     @Override
-    public void deleteAllAuthData() throws DataAccessException{
+    public void deleteAllAuthData() throws DatabaseException {
         var statement = "DELETE FROM authData";
         DatabaseManager.executeUpdate(statement);
     }
 
     @Override
-    public String getAuth(String authToken) throws UnauthorizedException, DataAccessException {
+    public String getAuth(String authToken) throws UnauthorizedException, DatabaseException {
         // Throw Unauthorized Exception if there isn't
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM authData WHERE authToken=?";
@@ -60,12 +60,12 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (UnauthorizedException ex) {
             throw new UnauthorizedException("unauthorized");
         } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DatabaseException(String.format("Unable to read data: %s", e.getMessage()));
         }
     }
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException {
+    public void deleteAuth(String authToken) throws DatabaseException {
         var statement = "DELETE FROM authData WHERE authToken=?";
         DatabaseManager.executeUpdate(statement, authToken);
     }

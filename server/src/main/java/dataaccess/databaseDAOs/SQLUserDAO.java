@@ -2,7 +2,7 @@ package dataaccess.databaseDAOs;
 
 import dataaccess.DatabaseManager;
 import dataaccess.UserDAO;
-import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DatabaseException;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO {
 
-    public SQLUserDAO() throws DataAccessException{
+    public SQLUserDAO() throws DatabaseException {
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS  users (
@@ -29,7 +29,7 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) throws DatabaseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email FROM users WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -41,20 +41,20 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DatabaseException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public void createUser(UserData user) throws DataAccessException{
+    public void createUser(UserData user) throws DatabaseException{
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         DatabaseManager.executeUpdate(statement, user.username(),
                 BCrypt.hashpw(user.password(), BCrypt.gensalt()), user.email());
     }
 
     @Override
-    public void deleteAllUsers() throws DataAccessException {
+    public void deleteAllUsers() throws DatabaseException {
         var statement = "DELETE FROM users";
         DatabaseManager.executeUpdate(statement);
     }

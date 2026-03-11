@@ -3,10 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.DataAccessException;
-import dataaccess.exceptions.UnauthorizedException;
+import dataaccess.exceptions.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 import server.requests.*;
@@ -18,7 +15,7 @@ public class UserService extends Service {
         super(userDAO, authDAO, gameDAO);
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, BadRequestException, DataAccessException {
+    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, BadRequestException, DatabaseException {
         // Validate the input here (none of it null), throw BadRequestException if something is wrong
         if (registerRequest.username() == null
             || registerRequest.password() == null
@@ -41,7 +38,7 @@ public class UserService extends Service {
         return new RegisterResult(user.username(),authData.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DatabaseException {
         if (loginRequest.username() == null
             || loginRequest.username().isEmpty()
             || loginRequest.password() == null
@@ -62,7 +59,7 @@ public class UserService extends Service {
         return new LoginResult(userData.username(),authData.authToken());
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) throws UnauthorizedException, DataAccessException{
+    public LogoutResult logout(LogoutRequest logoutRequest) throws UnauthorizedException, DatabaseException {
         try {
             authDAO.getAuth(logoutRequest.authToken());
         } catch (UnauthorizedException ex){

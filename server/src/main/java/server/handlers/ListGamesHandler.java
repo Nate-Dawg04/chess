@@ -2,6 +2,7 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DatabaseException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -18,7 +19,7 @@ public class ListGamesHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws UnauthorizedException , DataAccessException {
+    public void handle(@NotNull Context context) throws UnauthorizedException , DatabaseException {
         Gson gson = new Gson();
         ListGamesRequest listGamesRequest = new ListGamesRequest(context.header("authorization"));
         ListGamesResult listGamesResult;

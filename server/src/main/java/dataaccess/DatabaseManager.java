@@ -2,6 +2,7 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DatabaseException;
 
 import java.sql.*;
 import java.util.Properties;
@@ -25,13 +26,13 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static public void createDatabase() throws DataAccessException {
+    static public void createDatabase() throws DatabaseException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database", ex);
+            throw new DatabaseException(String.format("failed to create database: %s", ex.getMessage()));
         }
     }
 
@@ -47,14 +48,14 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    public static Connection getConnection() throws DataAccessException {
+    public static Connection getConnection() throws DatabaseException {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to get connection", ex);
+            throw new DatabaseException(String.format("failed to get connection: %s", ex.getMessage()));
         }
     }
 
@@ -81,7 +82,7 @@ public class DatabaseManager {
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
 
-    public static void configureDatabase(String[] createStatements) throws DataAccessException {
+    public static void configureDatabase(String[] createStatements) throws DatabaseException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -90,11 +91,11 @@ public class DatabaseManager {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DatabaseException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 
-    public static int executeUpdate(String statement, Object... params) throws DataAccessException {
+    public static int executeUpdate(String statement, Object... params) throws DatabaseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 Gson gson = new Gson();
@@ -118,7 +119,7 @@ public class DatabaseManager {
                 return 0;
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DatabaseException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
 import dataaccess.exceptions.DataAccessException;
+import dataaccess.exceptions.DatabaseException;
 import model.GameData;
 import model.ListGamesGameData;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 
 public class SQLGameDAO implements GameDAO {
 
-    public SQLGameDAO() throws DataAccessException {
+    public SQLGameDAO() throws DatabaseException {
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS gameData (
@@ -40,7 +41,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void deleteAllGameData() throws DataAccessException {
+    public void deleteAllGameData() throws DatabaseException {
         var statement = "DELETE FROM gameData";
         DatabaseManager.executeUpdate(statement);
 
@@ -50,7 +51,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public ArrayList<ListGamesGameData> getAllGames() throws DataAccessException{
+    public ArrayList<ListGamesGameData> getAllGames() throws DatabaseException{
         var result = new ArrayList<ListGamesGameData>(0);
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameJSON FROM gameData";
@@ -63,19 +64,19 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DatabaseException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return result;
     }
 
     @Override
-    public int createGame(String gameName) throws DataAccessException {
+    public int createGame(String gameName) throws DatabaseException {
         var statement = "INSERT INTO gameData (gameName, gameJSON) VALUES (?,?)";
         return DatabaseManager.executeUpdate(statement, gameName, new ChessGame());
     }
 
     @Override
-    public GameData getGameData(int gameID) throws DataAccessException {
+    public GameData getGameData(int gameID) throws DatabaseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameID,whiteUsername,blackUsername,gameName,gameJSON FROM gameData WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -87,13 +88,13 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DatabaseException(String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     @Override
-    public void replaceGame(int gameID, GameData newGame) throws DataAccessException {
+    public void replaceGame(int gameID, GameData newGame) throws DatabaseException {
         var statement = "UPDATE gameData SET whiteUsername = ?, blackUsername = ?, gameName = ?, gameJSON = ? WHERE gameID = ?";
         DatabaseManager.executeUpdate(statement, newGame.whiteUsername(),newGame.blackUsername(),newGame.gameName(),newGame.game(),gameID);
     }
