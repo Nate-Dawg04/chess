@@ -70,8 +70,8 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public int createGame(String gameName) throws DataAccessException {
-        var statement = "INSERT INTO gameData (gameName) VALUES (?)";
-        return DatabaseManager.executeUpdate(statement, gameName);
+        var statement = "INSERT INTO gameData (gameName, gameJSON) VALUES (?,?)";
+        return DatabaseManager.executeUpdate(statement, gameName, new ChessGame());
     }
 
     @Override
