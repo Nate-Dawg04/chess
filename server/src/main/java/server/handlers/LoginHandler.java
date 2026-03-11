@@ -17,7 +17,7 @@ public class LoginHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws BadRequestException, UnauthorizedException {
+    public void handle(@NotNull Context context) throws BadRequestException, UnauthorizedException, DataAccessException {
         Gson gson = new Gson();
         LoginRequest loginRequest = gson.fromJson(context.body(), LoginRequest.class);
 
@@ -28,6 +28,8 @@ public class LoginHandler implements Handler {
             throw new BadRequestException(ex.getMessage());
         } catch (UnauthorizedException ex) {
             throw new UnauthorizedException(ex.getMessage());
+        } catch (DataAccessException ex) {
+            throw new DataAccessException(ex.getMessage());
         }
         context.status(200);
         context.json(gson.toJson(loginResult));

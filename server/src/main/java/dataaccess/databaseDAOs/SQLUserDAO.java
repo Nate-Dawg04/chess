@@ -30,7 +30,7 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            var statement = "SELECT username, password, email FROM users WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -47,13 +47,13 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public void createUser(UserData user) throws DataAccessException{
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         DatabaseManager.executeUpdate(statement, user.username(), user.password(), user.email());
     }
 
     @Override
     public void deleteAllUsers() throws DataAccessException {
-        var statement = "TRUNCATE user";
+        var statement = "TRUNCATE users";
         DatabaseManager.executeUpdate(statement);
     }
 

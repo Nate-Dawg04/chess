@@ -12,10 +12,15 @@ public class ClearService extends Service{
         super(userDAO, authDAO, gameDAO);
     }
 
-    public ClearResult clear(ClearRequest clearRequest) throws DataAccessException {
-        userDAO.deleteAllUsers();
-        authDAO.deleteAllAuthData();
-        gameDAO.deleteAllGameData();
-        return new ClearResult();
+    public ClearResult clear(ClearRequest clearRequest){
+        try {
+            userDAO.deleteAllUsers();
+            authDAO.deleteAllAuthData();
+            gameDAO.deleteAllGameData();
+            return new ClearResult();
+        } catch (Exception ex){
+            System.out.printf("Unable to read data: %s%n", ex.getMessage());
+        }
+        return null;
     }
 }
