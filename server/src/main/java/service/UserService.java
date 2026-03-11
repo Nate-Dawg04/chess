@@ -5,6 +5,7 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.*;
 import server.requests.*;
@@ -16,7 +17,7 @@ public class UserService extends Service {
         super(userDAO, authDAO, gameDAO);
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, BadRequestException {
+    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, BadRequestException, DataAccessException {
         // Validate the input here (none of it null), throw BadRequestException if something is wrong
         if (registerRequest.username() == null
             || registerRequest.password() == null
@@ -39,7 +40,7 @@ public class UserService extends Service {
         return new RegisterResult(user.username(),authData.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException {
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (loginRequest.username() == null
             || loginRequest.username().isEmpty()
             || loginRequest.password() == null

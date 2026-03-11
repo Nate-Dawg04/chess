@@ -1,6 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.databaseDAOs.SQLAuthDAO;
+import dataaccess.databaseDAOs.SQLGameDAO;
 import dataaccess.databaseDAOs.SQLUserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
@@ -23,6 +25,8 @@ public class Server {
 
     public Server() {
         SQLUserDAO sqlUserDAO = null;
+        SQLAuthDAO sqlAuthDAO = null;
+        SQLGameDAO sqlGameDAO = null;
         try {
             sqlUserDAO = new SQLUserDAO();
         } catch (Exception ex) {

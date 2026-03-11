@@ -6,6 +6,8 @@ import dataaccess.exceptions.DataAccessException;
 import model.UserData;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO {
@@ -14,32 +16,52 @@ public class SQLUserDAO implements UserDAO {
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS  users (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`username`),
+              INDEX(username)
+            )
             """
         };
         DatabaseManager.configureDatabase(createStatements);
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
     @Override
-    public void createUser(UserData user) {
-
+    public void createUser(UserData user) throws DataAccessException{
+        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        DatabaseManager.executeUpdate(statement, user.username(), user.password(), user.email());
     }
 
     @Override
-    public void deleteAllUsers() {
+    public void deleteAllUsers() throws DataAccessException {
+        var statement = "TRUNCATE user";
+        DatabaseManager.executeUpdate(statement);
+    }
 
+    private UserData readUser(ResultSet rs) throws SQLException {
+        String username = rs.getString("username");
+        String password = rs.getString("password");
+        String email = rs.getString("email");
+        return new UserData(username,password,email);
     }
 
 
