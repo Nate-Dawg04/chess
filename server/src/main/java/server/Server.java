@@ -18,17 +18,17 @@ public class Server {
     public Server() {
         SQLUserDAO sqlUserDAO = null;
         SQLAuthDAO sqlAuthDAO = null;
-//        SQLGameDAO sqlGameDAO = null;
+        SQLGameDAO sqlGameDAO = null;
         try {
             sqlUserDAO = new SQLUserDAO();
             sqlAuthDAO = new SQLAuthDAO();
+            sqlGameDAO = new SQLGameDAO();
         } catch (Exception ex) {
             System.out.println("\"Unable to start server: %s%n\", ex.getMessage()");
         }
-        MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-        UserService userService = new UserService(sqlUserDAO, sqlAuthDAO, memoryGameDAO);
-        GameService gameService = new GameService(sqlUserDAO, sqlAuthDAO, memoryGameDAO);
-        ClearService clearService = new ClearService(sqlUserDAO, sqlAuthDAO, memoryGameDAO);
+        UserService userService = new UserService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
+        GameService gameService = new GameService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
+        ClearService clearService = new ClearService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)

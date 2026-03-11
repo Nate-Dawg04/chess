@@ -1,5 +1,6 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import dataaccess.exceptions.DataAccessException;
 
 import java.sql.*;
@@ -96,11 +97,19 @@ public class DatabaseManager {
     public static int executeUpdate(String statement, Object... params) throws DataAccessException{
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                Gson gson = new Gson();
+
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    } else if (param instanceof Integer p) {
+                        ps.setInt(i + 1, p);
+                    } else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    } else {
+                        ps.setString(i + 1, gson.toJson(param));
+                    }
                 }
                 ps.executeUpdate();
 

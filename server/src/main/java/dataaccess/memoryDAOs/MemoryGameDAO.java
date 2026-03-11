@@ -9,7 +9,7 @@ import model.GameData;
 import model.ListGamesGameData;
 
 public class MemoryGameDAO implements GameDAO {
-    // Maps the name of the game to the corresponding GameData
+    // Maps the gameID to the corresponding GameData
     final private HashMap<String, GameData> allGameData = new HashMap<>();
     private int gameCount = 0;
 
