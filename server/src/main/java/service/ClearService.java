@@ -14,9 +14,9 @@ public class ClearService extends Service{
 
     public ClearResult clear(ClearRequest clearRequest){
         try {
-            userDAO.deleteAllUsers();
             authDAO.deleteAllAuthData();
             gameDAO.deleteAllGameData();
+            userDAO.deleteAllUsers();
             return new ClearResult();
         } catch (Exception ex){
             System.out.printf("Unable to read data: %s%n", ex.getMessage());

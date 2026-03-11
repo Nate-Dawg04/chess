@@ -1,6 +1,7 @@
 package server.handlers;
 
 import com.google.gson.Gson;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -17,7 +18,7 @@ public class LogoutHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws UnauthorizedException {
+    public void handle(@NotNull Context context) throws UnauthorizedException, DataAccessException {
         Gson gson = new Gson();
         LogoutRequest logoutRequest = new LogoutRequest(context.header("authorization"));
         LogoutResult logoutResult;

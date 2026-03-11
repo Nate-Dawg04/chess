@@ -2,6 +2,7 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -18,7 +19,7 @@ public class CreateGameHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws UnauthorizedException, BadRequestException {
+    public void handle(@NotNull Context context) throws UnauthorizedException, BadRequestException, DataAccessException {
         Gson gson = new Gson();
         CreateGameRequest tempCreateGameRequest = gson.fromJson(context.body(),CreateGameRequest.class);
         CreateGameRequest createGameRequest = new CreateGameRequest(context.header("authorization"),

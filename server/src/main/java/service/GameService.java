@@ -4,6 +4,7 @@ package service;
 import dataaccess.*;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.GameData;
 import server.requests.CreateGameRequest;
@@ -18,7 +19,7 @@ public class GameService extends Service{
         super(userDAO, authDAO, gameDAO);
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws UnauthorizedException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws UnauthorizedException , DataAccessException {
         try {
             authDAO.getAuth(listGamesRequest.authToken());
         } catch (UnauthorizedException ex){
@@ -27,7 +28,7 @@ public class GameService extends Service{
         return new ListGamesResult(gameDAO.getAllGames());
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws UnauthorizedException, BadRequestException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws UnauthorizedException, BadRequestException, DataAccessException {
         if (createGameRequest.gameName() == null || createGameRequest.gameName().isEmpty()){
             throw new BadRequestException("bad request");
         }
@@ -41,7 +42,7 @@ public class GameService extends Service{
         return new CreateGameResult(gameID);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws BadRequestException,UnauthorizedException, AlreadyTakenException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws BadRequestException,UnauthorizedException, AlreadyTakenException, DataAccessException {
         try {
             authDAO.getAuth(joinGameRequest.authToken());
         } catch (UnauthorizedException ex){

@@ -3,6 +3,7 @@ package server.handlers;
 import com.google.gson.Gson;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.BadRequestException;
+import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -19,7 +20,8 @@ public class JoinGameHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws BadRequestException, UnauthorizedException, AlreadyTakenException {
+    public void handle(@NotNull Context context) throws BadRequestException, UnauthorizedException,
+            AlreadyTakenException, DataAccessException {
         Gson gson = new Gson();
         JoinGameRequest tempJoinGameRequest = gson.fromJson(context.body(), JoinGameRequest.class);
         JoinGameRequest joinGameRequest = new JoinGameRequest(context.header("authorization"),

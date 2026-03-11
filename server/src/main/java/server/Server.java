@@ -1,21 +1,13 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.databaseDAOs.SQLAuthDAO;
-import dataaccess.databaseDAOs.SQLGameDAO;
-import dataaccess.databaseDAOs.SQLUserDAO;
-import dataaccess.exceptions.AlreadyTakenException;
-import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.UnauthorizedException;
-import dataaccess.memoryDAOs.MemoryAuthDAO;
-import dataaccess.memoryDAOs.MemoryGameDAO;
-import dataaccess.memoryDAOs.MemoryUserDAO;
+import dataaccess.databaseDAOs.*;
+import dataaccess.exceptions.*;
+import dataaccess.memoryDAOs.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;
-import service.ClearService;
-import service.GameService;
-import service.UserService;
+import service.*;
 
 import java.util.Map;
 
@@ -26,7 +18,7 @@ public class Server {
     public Server() {
         SQLUserDAO sqlUserDAO = null;
         SQLAuthDAO sqlAuthDAO = null;
-        SQLGameDAO sqlGameDAO = null;
+//        SQLGameDAO sqlGameDAO = null;
         try {
             sqlUserDAO = new SQLUserDAO();
             sqlAuthDAO = new SQLAuthDAO();
