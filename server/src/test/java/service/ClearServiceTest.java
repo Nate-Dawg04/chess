@@ -21,7 +21,11 @@ class ClearServiceTest {
         memoryUserDAO.createUser(new UserData("Nathan","Nathan","Nathan"));
         memoryAuthDAO.createAuth(new AuthData(clearService.generateAuthString(), "Nathan"));
         memoryGameDAO.createGame("Fun Game");
-        clearService.clear(new ClearRequest());
+        try {
+            clearService.clear(new ClearRequest());
+        } catch (Exception ex) {
+            fail();
+        }
         assertTrue(memoryGameDAO.getAllGames().isEmpty());
     }
 }
