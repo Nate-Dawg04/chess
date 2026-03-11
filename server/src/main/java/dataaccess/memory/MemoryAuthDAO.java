@@ -1,4 +1,4 @@
-package dataaccess.memoryDAOs;
+package dataaccess.memory;
 
 import dataaccess.AuthDAO;
 import dataaccess.exceptions.UnauthorizedException;

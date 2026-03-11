@@ -1,4 +1,4 @@
-package dataaccess.databaseDAOs;
+package dataaccess.sql;
 
 import dataaccess.DatabaseManager;
 import dataaccess.UserDAO;

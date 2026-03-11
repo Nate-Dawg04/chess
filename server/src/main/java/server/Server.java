@@ -1,9 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.databaseDAOs.*;
+import dataaccess.sql.*;
 import dataaccess.exceptions.*;
-import dataaccess.memoryDAOs.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;

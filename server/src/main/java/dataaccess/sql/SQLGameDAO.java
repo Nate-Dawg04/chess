@@ -1,4 +1,4 @@
-package dataaccess.databaseDAOs;
+package dataaccess.sql;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
@@ -54,7 +54,8 @@ public class SQLGameDAO implements GameDAO {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         GameData tempGameData = readGameData(rs);
-                        result.add(new ListGamesGameData(tempGameData.gameID(),tempGameData.whiteUsername(),tempGameData.blackUsername(),tempGameData.gameName()));
+                        result.add(new ListGamesGameData(tempGameData.gameID(),tempGameData.whiteUsername(),
+                                tempGameData.blackUsername(),tempGameData.gameName()));
                     }
                 }
             }

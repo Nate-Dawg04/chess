@@ -1,8 +1,8 @@
 package service;
 
-import dataaccess.memoryDAOs.MemoryAuthDAO;
-import dataaccess.memoryDAOs.MemoryGameDAO;
-import dataaccess.memoryDAOs.MemoryUserDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
 import dataaccess.exceptions.AlreadyTakenException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.AuthData;
