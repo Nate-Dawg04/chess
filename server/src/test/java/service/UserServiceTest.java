@@ -8,6 +8,7 @@ import dataaccess.memoryDAOs.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import server.requests.*;
 import server.results.*;
 
@@ -31,9 +32,7 @@ class UserServiceTest {
     void registerNegative() {
         UserService userService = new UserService(new MemoryUserDAO(),new MemoryAuthDAO(),new MemoryGameDAO());
         RegisterRequest registerRequest = new RegisterRequest("","","");
-        assertThrows(BadRequestException.class,() -> {
-            userService.register(registerRequest);
-        });
+        assertThrows(BadRequestException.class,() -> userService.register(registerRequest));
     }
 
     @Test
@@ -41,7 +40,7 @@ class UserServiceTest {
         MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
         MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
         UserService userService = new UserService(memoryUserDAO,memoryAuthDAO,new MemoryGameDAO());
-        UserData user = new UserData("Nathan","Right Password","Nathan");
+        UserData user = new UserData("Nathan", BCrypt.hashpw("Right Password", BCrypt.gensalt()),"Nathan");
         memoryUserDAO.createUser(user);
         memoryAuthDAO.createAuth(new AuthData(userService.generateAuthString(), user.username()));
         LoginRequest loginRequest = new LoginRequest("Nathan","Right Password");
@@ -56,7 +55,7 @@ class UserServiceTest {
     void loginNegative() {
         MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
         UserService userService = new UserService(memoryUserDAO,new MemoryAuthDAO(),new MemoryGameDAO());
-        UserData user = new UserData("Nathan","Nathan","Nathan");
+        UserData user = new UserData("Nathan",BCrypt.hashpw("Nathan", BCrypt.gensalt()),"Nathan");
         memoryUserDAO.createUser(user);
         LoginRequest loginRequest = new LoginRequest("Nathan","Wrong Password");
         assertThrows(UnauthorizedException.class,() -> {
