@@ -29,14 +29,14 @@ public class Server {
         SQLGameDAO sqlGameDAO = null;
         try {
             sqlUserDAO = new SQLUserDAO();
+            sqlAuthDAO = new SQLAuthDAO();
         } catch (Exception ex) {
             System.out.println("\"Unable to start server: %s%n\", ex.getMessage()");
         }
-        MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
         MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-        UserService userService = new UserService(sqlUserDAO, memoryAuthDAO, memoryGameDAO);
-        GameService gameService = new GameService(sqlUserDAO, memoryAuthDAO, memoryGameDAO);
-        ClearService clearService = new ClearService(sqlUserDAO, memoryAuthDAO, memoryGameDAO);
+        UserService userService = new UserService(sqlUserDAO, sqlAuthDAO, memoryGameDAO);
+        GameService gameService = new GameService(sqlUserDAO, sqlAuthDAO, memoryGameDAO);
+        ClearService clearService = new ClearService(sqlUserDAO, sqlAuthDAO, memoryGameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)
