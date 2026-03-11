@@ -1,9 +1,6 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.exceptions.UnauthorizedException;
-import io.javalin.http.Context;
-import io.javalin.http.UnauthorizedResponse;
 
 import java.util.UUID;
 
@@ -18,7 +15,7 @@ public class Service {
         this.gameDAO = gameDAO;
     }
 
-    public String generateAuthString(){
+    public static String generateAuthString(){
         return UUID.randomUUID().toString();
     }
 }
