@@ -4,7 +4,6 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
-import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DatabaseException;
 import model.GameData;
 import model.ListGamesGameData;
@@ -44,14 +43,10 @@ public class SQLGameDAO implements GameDAO {
     public void deleteAllGameData() throws DatabaseException {
         var statement = "DELETE FROM gameData";
         DatabaseManager.executeUpdate(statement);
-
-        // Maybe: Figure out a way to reset the GameID auto increment thing back to 1
-        // Might not be necessary though
-
     }
 
     @Override
-    public ArrayList<ListGamesGameData> getAllGames() throws DatabaseException{
+    public ArrayList<ListGamesGameData> getAllGames() throws DatabaseException {
         var result = new ArrayList<ListGamesGameData>(0);
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameJSON FROM gameData";
