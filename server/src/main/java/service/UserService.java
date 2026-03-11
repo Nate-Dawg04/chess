@@ -8,6 +8,7 @@ import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.UnauthorizedException;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import server.requests.*;
 import server.results.*;
 
@@ -51,7 +52,7 @@ public class UserService extends Service {
 
         UserData userData = userDAO.getUser(loginRequest.username());
         if (userData == null
-            || !userData.password().equals(loginRequest.password())
+            || !BCrypt.checkpw(loginRequest.password(), userData.password())
         ){
             throw new UnauthorizedException("unauthorized");
         }
