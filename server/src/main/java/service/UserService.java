@@ -6,8 +6,12 @@ import dataaccess.UserDAO;
 import dataaccess.exceptions.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
-import server.requests.*;
-import server.results.*;
+import requests.LoginRequest;
+import requests.LogoutRequest;
+import requests.RegisterRequest;
+import results.LoginResult;
+import results.LogoutResult;
+import results.RegisterResult;
 
 public class UserService extends Service {
 

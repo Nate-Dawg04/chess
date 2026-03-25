@@ -3,10 +3,9 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DatabaseException;
-import server.requests.ClearRequest;
-import server.results.ClearResult;
+import requests.ClearRequest;
+import results.ClearResult;
 
 public class ClearService extends Service{
     public ClearService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {

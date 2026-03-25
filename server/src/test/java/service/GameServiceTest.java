@@ -8,9 +8,9 @@ import dataaccess.exceptions.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
-import server.requests.CreateGameRequest;
-import server.requests.JoinGameRequest;
-import server.requests.ListGamesRequest;
+import requests.CreateGameRequest;
+import requests.JoinGameRequest;
+import requests.ListGamesRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 

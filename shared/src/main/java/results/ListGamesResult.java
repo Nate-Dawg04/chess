@@ -1,4 +1,4 @@
-package server.results;
+package results;
 
 import model.ListGamesGameData;
 

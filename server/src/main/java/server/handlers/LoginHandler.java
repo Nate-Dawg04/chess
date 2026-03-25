@@ -5,8 +5,8 @@ import dataaccess.exceptions.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
-import server.requests.LoginRequest;
-import server.results.LoginResult;
+import requests.LoginRequest;
+import results.LoginResult;
 import service.UserService;
 
 public class LoginHandler implements Handler {

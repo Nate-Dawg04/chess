@@ -5,8 +5,8 @@ import dataaccess.exceptions.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
-import server.requests.JoinGameRequest;
-import server.results.JoinGameResult;
+import requests.JoinGameRequest;
+import results.JoinGameResult;
 import service.GameService;
 
 public class JoinGameHandler implements Handler {

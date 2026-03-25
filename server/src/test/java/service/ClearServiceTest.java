@@ -6,7 +6,7 @@ import dataaccess.memory.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
-import server.requests.ClearRequest;
+import requests.ClearRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 

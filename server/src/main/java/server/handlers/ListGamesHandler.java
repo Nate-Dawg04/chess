@@ -1,14 +1,13 @@
 package server.handlers;
 
 import com.google.gson.Gson;
-import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DatabaseException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
-import server.requests.ListGamesRequest;
-import server.results.ListGamesResult;
+import requests.ListGamesRequest;
+import results.ListGamesResult;
 import service.GameService;
 
 public class ListGamesHandler implements Handler {

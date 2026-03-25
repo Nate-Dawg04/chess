@@ -9,8 +9,12 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
-import server.requests.*;
-import server.results.*;
+import requests.LoginRequest;
+import requests.LogoutRequest;
+import requests.RegisterRequest;
+import results.LoginResult;
+import results.LogoutResult;
+import results.RegisterResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 

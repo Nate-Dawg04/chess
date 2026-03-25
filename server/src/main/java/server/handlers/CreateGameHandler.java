@@ -2,14 +2,13 @@ package server.handlers;
 
 import com.google.gson.Gson;
 import dataaccess.exceptions.BadRequestException;
-import dataaccess.exceptions.DataAccessException;
 import dataaccess.exceptions.DatabaseException;
 import dataaccess.exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
-import server.requests.CreateGameRequest;
-import server.results.CreateGameResult;
+import requests.CreateGameRequest;
+import results.CreateGameResult;
 import service.GameService;
 
 public class CreateGameHandler implements Handler {
