@@ -17,13 +17,13 @@ public class BoardPrinter {
 
     public String drawWhiteBoard(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\n").append(SET_TEXT_COLOR_RED).append("STARTING A NEW BOARD").append("\n").append(RESET_ALL);
 
         sb.append(drawHeader("WHITE"));
 
+        int count = 8;
         for (int row = 0; row < 8; row++){
-//            sb.append("\n").append(SET_TEXT_COLOR_RED).append("ADDING A NEW ROW").append("\n");
-            sb.append(createRow("WHITE",row));
+            sb.append(createRow("WHITE",row,count));
+            count--;
         }
 
         sb.append(drawHeader("WHITE"));
@@ -36,8 +36,10 @@ public class BoardPrinter {
 
         sb.append(drawHeader("BLACK"));
 
+        int count = 1;
         for (int row = 7; row >= 0; row--){
-            sb.append(createRow("BLACK",row));
+            sb.append(createRow("BLACK",row,count));
+            count++;
         }
 
         sb.append(drawHeader("BLACK"));
@@ -47,9 +49,9 @@ public class BoardPrinter {
 
     //Draw a row of the board full of chess pieces
         // Count will be used for the number at the start and end of each row
-    public StringBuilder createRow(String playerColor,int row){
+    public StringBuilder createRow(String playerColor,int row, int count){
         StringBuilder sb = new StringBuilder();
-        sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row+1).append(" ");
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(count).append(" ");
         for (int col = 0; col < 8; col++){
             if (drawWhite){
                 sb.append(SET_BG_COLOR_WHITE);
@@ -65,7 +67,8 @@ public class BoardPrinter {
                 drawWhite = !drawWhite;
             }
         }
-        sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row+1).append(" ").append("\n");
+
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(count).append(" ").append("\n");
         return sb;
     }
 
