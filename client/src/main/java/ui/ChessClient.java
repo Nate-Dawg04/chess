@@ -16,13 +16,13 @@ public class ChessClient {
     private State state = State.SIGNEDOUT;
     private String authToken;
 
-    public ChessClient(int port) throws ResponseException {
+    public ChessClient(int port){
         server = new ServerFacade(port);
     }
 
     public void run() {
-        System.out.println("Welcome to chess!");
-        System.out.print(help());
+        System.out.println(SET_TEXT_COLOR_GREEN + SET_TEXT_BOLD + "Welcome to chess!");
+        System.out.print(RESET_ALL + SET_TEXT_COLOR_BLUE + help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -77,6 +77,7 @@ public class ChessClient {
     }
 
     public String help() {
+        System.out.print(SET_TEXT_COLOR_GREEN + "Here are all the available commands:\n");
         if (state == State.SIGNEDOUT) {
             return """
                     - help
@@ -102,7 +103,7 @@ public class ChessClient {
                 var registerResult = server.register(new RegisterRequest(params[0],params[1],params[2]));
                 authToken = registerResult.authToken();
                 state = State.SIGNEDIN;
-                return String.format("Welcome in %s!", registerResult.username());
+                return String.format("Welcome in %s!\n", registerResult.username());
             } catch (Exception ex) {
                 throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
             }
@@ -116,7 +117,7 @@ public class ChessClient {
                 var loginResult = server.login(new LoginRequest(params[0],params[1]));
                 state = State.SIGNEDIN;
                 authToken = loginResult.authToken();
-                return String.format("Welcome in %s!", loginResult.username());
+                return String.format("Welcome in %s!\n", loginResult.username());
             } catch (Exception ex) {
                 throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
             }
@@ -127,7 +128,7 @@ public class ChessClient {
     public String logout() throws ResponseException {
         try {
             assertSignedIn();
-            // Need the authToken to be able to logout
+            // Need the authToken to be able to log out
             server.logout(new LogoutRequest(authToken));
             state = State.SIGNEDOUT;
             return "Successfully logged out";
