@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import exception.ResponseException;
 import model.ListGamesGameData;
 import requests.*;
@@ -209,7 +210,15 @@ public class ChessClient {
                     gameID = mostRecentGames.get(Integer.parseInt(params[0])).gameID();
                 }
                 server.joinGame(new JoinGameRequest(authToken,params[1].toUpperCase(),gameID));
-                return "Successfully joined the game!";
+                ChessBoard board = new ChessBoard();
+                board.resetBoard();
+                BoardPrinter boardPrinter = new BoardPrinter(board);
+                if (params[1].equals("WHITE")){
+                    return boardPrinter.drawWhiteBoard();
+                } else {
+                    return boardPrinter.drawBlackBoard();
+                }
+//                return "Successfully joined the game!";
             } catch (NumberFormatException ex) {
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
             } catch (ResponseException ex) {
