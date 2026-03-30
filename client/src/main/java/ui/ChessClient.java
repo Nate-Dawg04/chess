@@ -155,14 +155,8 @@ public class ChessClient {
     }
 
     public String createGame(String... params) throws ResponseException {
-        // Maybe tweak in the future to allow for game names of a longer length??
         if (params.length >= 1) {
             try {
-//                StringBuilder gameName = new StringBuilder();
-//                for (String game : params){
-//                    gameName.append(game);
-//                    gameName.append(" ");
-//                }
                 String gameName = String.join(" ", params);
                 assertSignedIn();
                 server.createGame(new CreateGameRequest(authToken,gameName));

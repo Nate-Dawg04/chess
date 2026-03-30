@@ -29,10 +29,6 @@ public class ResponseException extends Exception {
         return new ResponseException(fromHttpStatusCode(status), message);
     }
 
-    public Code code() {
-        return code;
-    }
-
     public static Code fromHttpStatusCode(int httpStatusCode) {
         if (httpStatusCode >= 400 && httpStatusCode < 500){
             return Code.ClientError;
@@ -43,10 +39,4 @@ public class ResponseException extends Exception {
         }
     }
 
-    public int toHttpStatusCode() {
-        return switch (code) {
-            case ServerError -> 500;
-            case ClientError -> 400;
-        };
-    }
 }
