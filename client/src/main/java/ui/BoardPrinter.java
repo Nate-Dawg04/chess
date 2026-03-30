@@ -19,7 +19,7 @@ public class BoardPrinter {
     public String drawWhiteBoard(){
         StringBuilder sb = new StringBuilder();
 
-        sb.append(drawHeader("WHITE"));
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append("\n").append(drawHeader("WHITE"));
 
         int count = 8;
         for (int row = 0; row < 8; row++){
@@ -35,7 +35,7 @@ public class BoardPrinter {
     public String drawBlackBoard(){
         StringBuilder sb = new StringBuilder();
 
-        sb.append(drawHeader("BLACK"));
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append("\n").append(drawHeader("BLACK"));
 
         int count = 1;
         for (int row = 7; row >= 0; row--){

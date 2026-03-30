@@ -45,7 +45,7 @@ public class ChessClient {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_ALL + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_ALL + "CHESS GAME >>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public String eval(String input) {
@@ -85,22 +85,32 @@ public class ChessClient {
     public String help() {
         System.out.print(SET_TEXT_COLOR_WHITE + "\nHere are all the available commands:\n");
         if (state == State.SIGNEDOUT) {
-            return """
-                    - help
-                    - login <username> <password>
-                    - register <username> <password> <email>
-                    - quit
-                    """;
+            return
+                    SET_TEXT_COMMAND + "- help"
+                            + SET_TEXT_EXPLANATION + " - view all commands"
+                    + "\n" + SET_TEXT_COMMAND + "- login <username> <password>"
+                            + SET_TEXT_EXPLANATION + " - login to chessgame"
+                    + "\n" + SET_TEXT_COMMAND +  "- register <username> <password> <email>"
+                            + SET_TEXT_EXPLANATION + " - create a new user"
+                    + "\n" + SET_TEXT_COMMAND + "- quit"
+                            + SET_TEXT_EXPLANATION + " - stop the chess program" + "\n";
+
         }
-        return """
-                - help
-                - createGame <gameName>
-                - listGames
-                - playGame <gameNumber> <WHITE|BLACK>
-                - observeGame <gameNumber>
-                - logout
-                - quit
-                """;
+        return
+                SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
+                        + "\n" + SET_TEXT_COMMAND + "- createGame <gameName>"
+                        + SET_TEXT_EXPLANATION + " - create a new game with provided gameName"
+                        + "\n" + SET_TEXT_COMMAND + "- listGames"
+                        + SET_TEXT_EXPLANATION + " - list all the current games"
+                        + "\n" + SET_TEXT_COMMAND + "- playGame <gameNumber> <WHITE|BLACK>"
+                        + SET_TEXT_EXPLANATION + " - join a game with the provided gameNumber as WHITE or BLACK"
+                        + "\n" + SET_TEXT_COMMAND + "- observeGame <gameNumber>"
+                        + SET_TEXT_EXPLANATION + " - observe the game with the provided gameNumber"
+                        + "\n" + SET_TEXT_COMMAND + "- logout"
+                        + SET_TEXT_EXPLANATION + " - logout of account"
+                        + "\n" + SET_TEXT_COMMAND + "- quit"
+                        + SET_TEXT_EXPLANATION + " - stop the chess program" + "\n";
+
     }
 
     public String register(String... params) throws ResponseException {

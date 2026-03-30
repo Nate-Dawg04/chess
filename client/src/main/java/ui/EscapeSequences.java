@@ -64,4 +64,8 @@ public class EscapeSequences {
     public static final String WIDE_SPACE = "\u2003";
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
+
+    public static final String SET_TEXT_COMMAND = SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD;
+    public static final String SET_TEXT_EXPLANATION = SET_TEXT_COLOR_LIGHT_GREY + RESET_TEXT_BOLD_FAINT;
+
 }
