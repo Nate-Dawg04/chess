@@ -248,10 +248,19 @@ public class ChessClient {
 
     public String observeGame(String... params) throws ResponseException{
         if (params.length == 1) {
-            ChessBoard board = new ChessBoard();
-            board.resetBoard();
-            BoardPrinter boardPrinter = new BoardPrinter(board);
-            return boardPrinter.drawWhiteBoard();
+            try {
+                if (mostRecentGames.get(Integer.parseInt(params[0])) == null){
+                    throw new ResponseException(ResponseException.Code.ClientError,
+                            "No games match the provided game number");
+                }
+                ChessBoard board = new ChessBoard();
+                board.resetBoard();
+                BoardPrinter boardPrinter = new BoardPrinter(board);
+                return boardPrinter.drawWhiteBoard();
+            } catch (NumberFormatException ex){
+                throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
+            }
+
         }
         throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameNumber>");
     }

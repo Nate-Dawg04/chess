@@ -22,7 +22,7 @@ public class BoardPrinter {
         sb.append(SET_BG_COLOR_LIGHT_GREY).append("\n").append(drawHeader("WHITE"));
 
         int count = 8;
-        for (int row = 0; row < 8; row++){
+        for (int row = 7; row >= 0; row--){
             sb.append(createRow("WHITE",row,count));
             count--;
         }
@@ -38,7 +38,7 @@ public class BoardPrinter {
         sb.append(SET_BG_COLOR_LIGHT_GREY).append("\n").append(drawHeader("BLACK"));
 
         int count = 1;
-        for (int row = 7; row >= 0; row--){
+        for (int row = 0; row < 8; row++){
             sb.append(createRow("BLACK",row,count));
             count++;
         }
@@ -59,10 +59,8 @@ public class BoardPrinter {
                 sb.append(SET_BG_COLOR_BROWN);
             }
             if (playerColor.equals("WHITE")){
-                sb.append(SET_TEXT_COLOR_LIGHT_GREY);
                 sb.append(drawPiece(board.getPiece(new ChessPosition(row+1,col+1))));
             } else {
-                sb.append(SET_TEXT_COLOR_BLACK);
                 sb.append(drawPiece(board.getPiece(new ChessPosition(row+1,blackCol))));
             }
             if (col != 7){
