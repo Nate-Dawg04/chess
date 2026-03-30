@@ -64,16 +64,16 @@ public class ChessClient {
                 return switch (cmd) {
                     case "quit" -> "quit";
                     case "help" -> help();
-                    case "listgames" -> listGames();
+                    case "list" -> listGames();
                     case "logout" -> logout();
-                    case "creategame" -> createGame(params);
-                    case "playgame" -> joinGame(params);
-                    case "observegame" -> observeGame(params);
+                    case "create" -> createGame(params);
+                    case "play" -> joinGame(params);
+                    case "observe" -> observeGame(params);
                     default -> invalidInput();
                 };
             }
         } catch (ResponseException ex) {
-            return ex.getMessage();
+            return SET_TEXT_COLOR_RED + ex.getMessage();
         }
     }
 
@@ -89,7 +89,7 @@ public class ChessClient {
                     SET_TEXT_COMMAND + "- help"
                             + SET_TEXT_EXPLANATION + " - view all commands"
                     + "\n" + SET_TEXT_COMMAND + "- login <username> <password>"
-                            + SET_TEXT_EXPLANATION + " - login to chessgame"
+                            + SET_TEXT_EXPLANATION + " - login to user account"
                     + "\n" + SET_TEXT_COMMAND +  "- register <username> <password> <email>"
                             + SET_TEXT_EXPLANATION + " - create a new user"
                     + "\n" + SET_TEXT_COMMAND + "- quit"
@@ -98,13 +98,13 @@ public class ChessClient {
         }
         return
                 SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
-                        + "\n" + SET_TEXT_COMMAND + "- createGame <gameName>"
+                        + "\n" + SET_TEXT_COMMAND + "- create <gameName>"
                         + SET_TEXT_EXPLANATION + " - create a new game with provided gameName"
-                        + "\n" + SET_TEXT_COMMAND + "- listGames"
+                        + "\n" + SET_TEXT_COMMAND + "- list"
                         + SET_TEXT_EXPLANATION + " - list all the current games"
-                        + "\n" + SET_TEXT_COMMAND + "- playGame <gameNumber> <WHITE|BLACK>"
+                        + "\n" + SET_TEXT_COMMAND + "- play <gameNumber> <WHITE|BLACK>"
                         + SET_TEXT_EXPLANATION + " - join a game with the provided gameNumber as WHITE or BLACK"
-                        + "\n" + SET_TEXT_COMMAND + "- observeGame <gameNumber>"
+                        + "\n" + SET_TEXT_COMMAND + "- observe <gameNumber>"
                         + SET_TEXT_EXPLANATION + " - observe the game with the provided gameNumber"
                         + "\n" + SET_TEXT_COMMAND + "- logout"
                         + SET_TEXT_EXPLANATION + " - logout of account"
@@ -156,11 +156,17 @@ public class ChessClient {
 
     public String createGame(String... params) throws ResponseException {
         // Maybe tweak in the future to allow for game names of a longer length??
-        if (params.length == 1) {
+        if (params.length >= 1) {
             try {
+//                StringBuilder gameName = new StringBuilder();
+//                for (String game : params){
+//                    gameName.append(game);
+//                    gameName.append(" ");
+//                }
+                String gameName = String.join(" ", params);
                 assertSignedIn();
-                server.createGame(new CreateGameRequest(authToken,params[0]));
-                return "Successfully created a game with the name " + params[0] + "\n";
+                server.createGame(new CreateGameRequest(authToken,gameName));
+                return "Successfully created a game with the name " + gameName + "\n";
             } catch (Exception ex){
                 throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
             }

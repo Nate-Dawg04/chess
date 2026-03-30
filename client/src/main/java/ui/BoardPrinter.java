@@ -50,17 +50,19 @@ public class BoardPrinter {
 
     public StringBuilder createRow(String playerColor,int row, int count){
         StringBuilder sb = new StringBuilder();
-        sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(count).append(" ");
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append(SET_TEXT_COLOR_BLACK).append(" ").append(count).append(" ");
         int blackCol = 8;
         for (int col = 0; col < 8; col++){
             if (drawWhite){
                 sb.append(SET_BG_COLOR_WHITE);
             } else {
-                sb.append(SET_BG_COLOR_BLACK);
+                sb.append(SET_BG_COLOR_BROWN);
             }
             if (playerColor.equals("WHITE")){
+                sb.append(SET_TEXT_COLOR_LIGHT_GREY);
                 sb.append(drawPiece(board.getPiece(new ChessPosition(row+1,col+1))));
             } else {
+                sb.append(SET_TEXT_COLOR_BLACK);
                 sb.append(drawPiece(board.getPiece(new ChessPosition(row+1,blackCol))));
             }
             if (col != 7){
@@ -69,7 +71,7 @@ public class BoardPrinter {
             blackCol--;
         }
 
-        sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(count).append(" ").append("\n");
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append(SET_TEXT_COLOR_BLACK).append(" ").append(count).append(" ").append("\n");
         return sb;
     }
 
@@ -77,7 +79,7 @@ public class BoardPrinter {
     public StringBuilder drawHeader(String playerColor){
         StringBuilder sb = new StringBuilder();
         char[] columnHeaders;
-        sb.append(SET_BG_COLOR_LIGHT_GREY).append(EMPTY);
+        sb.append(SET_BG_COLOR_LIGHT_GREY).append(EMPTY).append(SET_TEXT_COLOR_BLACK);
         if (playerColor.equals("WHITE")){
             columnHeaders = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         } else {
