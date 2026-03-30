@@ -1,6 +1,7 @@
 package ui;
 
 import exception.ResponseException;
+import requests.CreateGameRequest;
 import requests.LoginRequest;
 import requests.LogoutRequest;
 import requests.RegisterRequest;
@@ -33,7 +34,6 @@ public class ChessClient {
             try {
                 result = eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
-                help();
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -63,6 +63,7 @@ public class ChessClient {
                     case "quit" -> "quit";
                     case "help" -> help();
                     case "logout" -> logout();
+                    case "creategame" -> createGame(params);
                     default -> invalidInput();
                 };
             }
@@ -77,7 +78,7 @@ public class ChessClient {
     }
 
     public String help() {
-        System.out.print(SET_TEXT_COLOR_GREEN + "Here are all the available commands:\n");
+        System.out.print(SET_TEXT_COLOR_GREEN + "\nHere are all the available commands:\n");
         if (state == State.SIGNEDOUT) {
             return """
                     - help
@@ -103,7 +104,8 @@ public class ChessClient {
                 var registerResult = server.register(new RegisterRequest(params[0],params[1],params[2]));
                 authToken = registerResult.authToken();
                 state = State.SIGNEDIN;
-                return String.format("Welcome in %s!\n", registerResult.username());
+                System.out.printf("Welcome in %s!\n", registerResult.username());
+                return help();
             } catch (Exception ex) {
                 throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
             }
@@ -117,7 +119,8 @@ public class ChessClient {
                 var loginResult = server.login(new LoginRequest(params[0],params[1]));
                 state = State.SIGNEDIN;
                 authToken = loginResult.authToken();
-                return String.format("Welcome in %s!\n", loginResult.username());
+                System.out.printf("Welcome in %s!\n", loginResult.username());
+                return help();
             } catch (Exception ex) {
                 throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
             }
@@ -128,13 +131,25 @@ public class ChessClient {
     public String logout() throws ResponseException {
         try {
             assertSignedIn();
-            // Need the authToken to be able to log out
             server.logout(new LogoutRequest(authToken));
             state = State.SIGNEDOUT;
-            return "Successfully logged out";
+            return "Successfully logged out\n";
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
         }
+    }
+
+    public String createGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+            try {
+                assertSignedIn();
+                var createGameResult = server.createGame(new CreateGameRequest(authToken,params[0]));
+                return "Successfully created a game with the name " + params[0] + "\n";
+            } catch (Exception ex){
+                throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());
+            }
+        }
+        throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameName>");
     }
 
     private void assertSignedIn() throws ResponseException {
