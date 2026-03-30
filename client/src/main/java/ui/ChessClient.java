@@ -1,13 +1,12 @@
 package ui;
 
 import exception.ResponseException;
-import requests.CreateGameRequest;
-import requests.LoginRequest;
-import requests.LogoutRequest;
-import requests.RegisterRequest;
+import model.ListGamesGameData;
+import requests.*;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -16,6 +15,7 @@ public class ChessClient {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
     private String authToken;
+    private LinkedHashMap<Integer, ListGamesGameData> mostRecentGames;
 
     public ChessClient(int port){
         server = new ServerFacade(port);
@@ -62,6 +62,7 @@ public class ChessClient {
                 return switch (cmd) {
                     case "quit" -> "quit";
                     case "help" -> help();
+                    case "listgames" -> listGames();
                     case "logout" -> logout();
                     case "creategame" -> createGame(params);
                     default -> invalidInput();
@@ -78,7 +79,7 @@ public class ChessClient {
     }
 
     public String help() {
-        System.out.print(SET_TEXT_COLOR_GREEN + "\nHere are all the available commands:\n");
+        System.out.print(SET_TEXT_COLOR_WHITE + "\nHere are all the available commands:\n");
         if (state == State.SIGNEDOUT) {
             return """
                     - help
@@ -140,6 +141,7 @@ public class ChessClient {
     }
 
     public String createGame(String... params) throws ResponseException {
+        // Maybe tweak in the future to allow for game names of a longer length??
         if (params.length == 1) {
             try {
                 assertSignedIn();
@@ -150,6 +152,40 @@ public class ChessClient {
             }
         }
         throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameName>");
+    }
+
+    public String listGames() throws ResponseException {
+        try {
+            assertSignedIn();
+            StringBuilder sb = new StringBuilder();
+            LinkedHashMap<Integer,ListGamesGameData> updatedGames = new LinkedHashMap<>(0);
+            var listGamesResult = server.listGames(new ListGamesRequest(authToken));
+            int count = 1;
+            for (ListGamesGameData game : listGamesResult.games()){
+                updatedGames.put(count,game);
+                sb.append("\n");
+                sb.append(SET_TEXT_COLOR_BLUE).append("Game Number: ")
+                        .append(SET_TEXT_COLOR_WHITE).append(count).append("\n");
+                sb.append(SET_TEXT_COLOR_BLUE).append("Game Name: ")
+                        .append(SET_TEXT_COLOR_WHITE).append(game.gameName()).append("\n");
+                sb.append(SET_TEXT_COLOR_BLUE).append("White User: ");
+                if (game.whiteUsername() != null){
+                    sb.append(SET_TEXT_COLOR_WHITE).append(game.whiteUsername());
+                }
+                sb.append("\n");
+                sb.append(SET_TEXT_COLOR_BLUE).append("Black User: ");
+                if (game.blackUsername() != null){
+                    sb.append(SET_TEXT_COLOR_WHITE).append(game.blackUsername());
+                }
+                sb.append("\n");
+
+                count++;
+            }
+            mostRecentGames = updatedGames;
+            return sb.toString();
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
     }
 
     private void assertSignedIn() throws ResponseException {
