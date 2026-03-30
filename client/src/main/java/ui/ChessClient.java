@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessPiece;
 import exception.ResponseException;
 import model.ListGamesGameData;
 import requests.*;
@@ -67,8 +68,8 @@ public class ChessClient {
                     case "listgames" -> listGames();
                     case "logout" -> logout();
                     case "creategame" -> createGame(params);
-                    case "joingame" -> joinGame(params);
-                    // case "observegame" -> observeGame(params);
+                    case "playgame" -> joinGame(params);
+                    case "observegame" -> observeGame(params);
                     default -> invalidInput();
                 };
             }
@@ -230,11 +231,22 @@ public class ChessClient {
         throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameNumber> <WHITE|BLACK>");
     }
 
+    public String observeGame(String... params) throws ResponseException{
+        if (params.length == 1) {
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            BoardPrinter boardPrinter = new BoardPrinter(board);
+            return boardPrinter.drawWhiteBoard();
+        }
+        throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameNumber>");
+    }
+
     private void assertSignedIn() throws ResponseException {
         if (state == State.SIGNEDOUT) {
             throw new ResponseException(ResponseException.Code.ClientError, "You must sign in");
         }
     }
+
 
 
 }
