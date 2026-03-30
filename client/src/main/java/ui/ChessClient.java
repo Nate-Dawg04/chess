@@ -149,7 +149,7 @@ public class ChessClient {
         if (params.length == 1) {
             try {
                 assertSignedIn();
-                var createGameResult = server.createGame(new CreateGameRequest(authToken,params[0]));
+                server.createGame(new CreateGameRequest(authToken,params[0]));
                 return "Successfully created a game with the name " + params[0] + "\n";
             } catch (Exception ex){
                 throw new ResponseException(ResponseException.Code.ClientError,ex.getMessage());

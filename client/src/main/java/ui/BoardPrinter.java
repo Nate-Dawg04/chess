@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
@@ -47,11 +48,10 @@ public class BoardPrinter {
         return sb.toString();
     }
 
-    //Draw a row of the board full of chess pieces
-        // Count will be used for the number at the start and end of each row
     public StringBuilder createRow(String playerColor,int row, int count){
         StringBuilder sb = new StringBuilder();
         sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(count).append(" ");
+        int blackCol = 8;
         for (int col = 0; col < 8; col++){
             if (drawWhite){
                 sb.append(SET_BG_COLOR_WHITE);
@@ -59,13 +59,14 @@ public class BoardPrinter {
                 sb.append(SET_BG_COLOR_BLACK);
             }
             if (playerColor.equals("WHITE")){
-                sb.append(drawPiece("WHITE",board.getPiece(new ChessPosition(row+1,col+1))));
+                sb.append(drawPiece(board.getPiece(new ChessPosition(row+1,col+1))));
             } else {
-                sb.append(drawPiece("BLACK",board.getPiece(new ChessPosition(row+1,col+1))));
+                sb.append(drawPiece(board.getPiece(new ChessPosition(row+1,blackCol))));
             }
             if (col != 7){
                 drawWhite = !drawWhite;
             }
+            blackCol--;
         }
 
         sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(count).append(" ").append("\n");
@@ -90,11 +91,12 @@ public class BoardPrinter {
     }
 
     // Returns the appropriate white or black piece, or an empty space if piece is null
-    public String drawPiece(String playerColor, ChessPiece piece){
+    public String drawPiece(ChessPiece piece){
         if (piece == null){
             return EMPTY;
         }
-        if (playerColor.equals("WHITE")){
+        ChessGame.TeamColor pieceColor = piece.getTeamColor();
+        if (pieceColor.equals(ChessGame.TeamColor.WHITE)){
             return switch (piece.getPieceType()) {
                 case PAWN -> WHITE_PAWN;
                 case ROOK -> WHITE_ROOK;
