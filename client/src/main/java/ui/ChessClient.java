@@ -1,12 +1,14 @@
 package ui;
 
-import com.sun.nio.sctp.HandlerResult;
-import com.sun.nio.sctp.Notification;
-import com.sun.nio.sctp.NotificationHandler;
+import exception.ResponseException;
+import server.ServerFacade;
 
-public class ChessClient implements NotificationHandler {
-    @Override
-    public HandlerResult handleNotification(Notification notification, Object attachment) {
-        return null;
+public class ChessClient {
+    private final ServerFacade server;
+
+    public ChessClient(String serverUrl) throws ResponseException {
+        server = new ServerFacade(serverUrl);
     }
+
+
 }
