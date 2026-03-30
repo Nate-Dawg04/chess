@@ -7,6 +7,7 @@ import server.ServerFacade;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -65,6 +66,8 @@ public class ChessClient {
                     case "listgames" -> listGames();
                     case "logout" -> logout();
                     case "creategame" -> createGame(params);
+                    case "joingame" -> joinGame(params);
+                    // case "observegame" -> observeGame(params);
                     default -> invalidInput();
                 };
             }
@@ -186,6 +189,36 @@ public class ChessClient {
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
+    }
+
+    public String joinGame(String... params) throws ResponseException{
+        if (params.length == 2){
+            try {
+                if (mostRecentGames == null){
+                    throw new ResponseException(ResponseException.Code.ClientError,"Please listGames first");
+                }
+
+                if (!Objects.equals(params[1], "white") && !Objects.equals(params[1], "black")){
+                    throw new ResponseException(ResponseException.Code.ClientError, "must specify WHITE or BLACK");
+                }
+                int gameID;
+                if (mostRecentGames.get(Integer.parseInt(params[0])) == null){
+                    throw new ResponseException(ResponseException.Code.ClientError,
+                            "No games match the provided game number");
+                } else {
+                    gameID = mostRecentGames.get(Integer.parseInt(params[0])).gameID();
+                }
+                server.joinGame(new JoinGameRequest(authToken,params[1].toUpperCase(),gameID));
+                return "Successfully joined the game!";
+            } catch (NumberFormatException ex) {
+                throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
+            } catch (ResponseException ex) {
+                throw new ResponseException(ResponseException.Code.ClientError, ex.getMessage());
+            } catch (Exception ex) {
+                throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            }
+        }
+        throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameNumber> <WHITE|BLACK>");
     }
 
     private void assertSignedIn() throws ResponseException {
