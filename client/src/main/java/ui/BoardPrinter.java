@@ -7,26 +7,26 @@ import chess.ChessPosition;
 import static ui.EscapeSequences.*;
 
 public class BoardPrinter {
-    private static final int BOARD_SIZE_IN_SQUARES = 10;
-    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
-    private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
-    private ChessBoard board;
+    private final ChessBoard board;
+    boolean drawWhite;
 
     public BoardPrinter(ChessBoard board){
         this.board = board;
+        drawWhite = true;
     }
 
     public String drawWhiteBoard(){
         StringBuilder sb = new StringBuilder();
+        sb.append("\n").append(SET_TEXT_COLOR_RED).append("STARTING A NEW BOARD").append("\n").append(RESET_ALL);
 
-        sb.append(drawHeader(sb,"WHITE"));
+        sb.append(drawHeader("WHITE"));
 
-        boolean drawWhite = true;
         for (int row = 0; row < 8; row++){
-            sb.append(createRow("WHITE",row,sb,drawWhite));
+//            sb.append("\n").append(SET_TEXT_COLOR_RED).append("ADDING A NEW ROW").append("\n");
+            sb.append(createRow("WHITE",row));
         }
 
-        sb.append(drawHeader(sb,"WHITE"));
+        sb.append(drawHeader("WHITE"));
 
         return sb.toString();
     }
@@ -34,21 +34,21 @@ public class BoardPrinter {
     public String drawBlackBoard(){
         StringBuilder sb = new StringBuilder();
 
-        sb.append(drawHeader(sb,"BLACK"));
+        sb.append(drawHeader("BLACK"));
 
-        boolean drawWhite = true;
-        for (int row = 0; row < 8; row++){
-            sb.append(createRow("BLACK",row,sb,drawWhite));
+        for (int row = 7; row >= 0; row--){
+            sb.append(createRow("BLACK",row));
         }
 
-        sb.append(drawHeader(sb,"BLACK"));
+        sb.append(drawHeader("BLACK"));
 
         return sb.toString();
     }
 
     //Draw a row of the board full of chess pieces
         // Count will be used for the number at the start and end of each row
-    public StringBuilder createRow(String playerColor, int row, StringBuilder sb,boolean drawWhite){
+    public StringBuilder createRow(String playerColor,int row){
+        StringBuilder sb = new StringBuilder();
         sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row+1).append(" ");
         for (int col = 0; col < 8; col++){
             if (drawWhite){
@@ -56,17 +56,22 @@ public class BoardPrinter {
             } else {
                 sb.append(SET_BG_COLOR_BLACK);
             }
-            // Now call another function that returns the string to be added depending on which piece it is
-            //Might need to remove the +1 depending on how getPiece is implemented
-            sb.append(drawPiece("WHITE",board.getPiece(new ChessPosition(row+1,col+1))));
-            drawWhite = !drawWhite;
+            if (playerColor.equals("WHITE")){
+                sb.append(drawPiece("WHITE",board.getPiece(new ChessPosition(row+1,col+1))));
+            } else {
+                sb.append(drawPiece("BLACK",board.getPiece(new ChessPosition(row+1,col+1))));
+            }
+            if (col != 7){
+                drawWhite = !drawWhite;
+            }
         }
         sb.append(SET_BG_COLOR_LIGHT_GREY).append(" ").append(row+1).append(" ").append("\n");
         return sb;
     }
 
     // Draw the a-h part, reverse it when drawing the black board
-    public StringBuilder drawHeader(StringBuilder sb, String playerColor){
+    public StringBuilder drawHeader(String playerColor){
+        StringBuilder sb = new StringBuilder();
         char[] columnHeaders;
         sb.append(SET_BG_COLOR_LIGHT_GREY).append(EMPTY);
         if (playerColor.equals("WHITE")){
@@ -93,7 +98,7 @@ public class BoardPrinter {
                 case BISHOP -> WHITE_BISHOP;
                 case QUEEN -> WHITE_QUEEN;
                 case KNIGHT -> WHITE_KNIGHT;
-                default -> EMPTY;
+                case KING -> WHITE_KING;
             };
         } else {
             return switch (piece.getPieceType()) {
@@ -102,7 +107,7 @@ public class BoardPrinter {
                 case BISHOP -> BLACK_BISHOP;
                 case QUEEN -> BLACK_QUEEN;
                 case KNIGHT -> BLACK_KNIGHT;
-                default -> EMPTY;
+                case KING -> BLACK_KING;
             };
         }
     }

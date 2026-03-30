@@ -1,7 +1,6 @@
 package ui;
 
 import chess.ChessBoard;
-import chess.ChessPiece;
 import exception.ResponseException;
 import model.ListGamesGameData;
 import requests.*;
@@ -214,7 +213,7 @@ public class ChessClient {
                 ChessBoard board = new ChessBoard();
                 board.resetBoard();
                 BoardPrinter boardPrinter = new BoardPrinter(board);
-                if (params[1].equals("WHITE")){
+                if (params[1].equals("white")){
                     return boardPrinter.drawWhiteBoard();
                 } else {
                     return boardPrinter.drawBlackBoard();
