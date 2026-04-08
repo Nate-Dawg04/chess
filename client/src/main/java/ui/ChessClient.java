@@ -1,10 +1,12 @@
 package ui;
 
 import chess.ChessBoard;
+import client.websocket.ServerMessageObserver;
 import exception.ResponseException;
 import model.ListGamesGameData;
 import requests.*;
 import server.ServerFacade;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -13,7 +15,7 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements ServerMessageObserver {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
     private String authToken;
@@ -265,6 +267,13 @@ public class ChessClient {
         }
     }
 
-
-
+    @Override
+    public void notify(ServerMessage message) {
+        switch(message.getServerMessageType()) {
+            // Need to now implement these methods to work properly with the UI
+            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+        }
+    }
 }

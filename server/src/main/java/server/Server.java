@@ -6,6 +6,7 @@ import dataaccess.exceptions.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import server.handlers.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class Server {
 
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         SQLUserDAO sqlUserDAO = null;
@@ -29,6 +31,8 @@ public class Server {
         GameService gameService = new GameService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
         ClearService clearService = new ClearService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
 
+        webSocketHandler = new WebSocketHandler();
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)
                 .exception(Exception.class, this::exceptionHandler)
@@ -38,7 +42,12 @@ public class Server {
                 .get("/game", new ListGamesHandler(gameService))
                 .post("/game", new CreateGameHandler(gameService))
                 .put("/game", new JoinGameHandler(gameService))
-                .delete("/db", new ClearHandler(clearService));
+                .delete("/db", new ClearHandler(clearService))
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
     }
 
     public int run(int desiredPort) {
