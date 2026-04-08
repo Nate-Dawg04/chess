@@ -6,7 +6,7 @@ import exception.ResponseException;
 import model.ListGamesGameData;
 import requests.*;
 import server.ServerFacade;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
