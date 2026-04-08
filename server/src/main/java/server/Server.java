@@ -31,7 +31,7 @@ public class Server {
         GameService gameService = new GameService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
         ClearService clearService = new ClearService(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
 
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(sqlUserDAO, sqlAuthDAO, sqlGameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .get("/error", this::throwException)

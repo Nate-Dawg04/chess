@@ -140,8 +140,8 @@ public class ChessClient implements ServerMessageObserver {
                             + SET_TEXT_EXPLANATION + " - completely redraw the chess board"
                             + "\n" + SET_TEXT_COMMAND + "- leave"
                             + SET_TEXT_EXPLANATION + " - leave the current game"
-                            + "\n" + SET_TEXT_COMMAND + "- move <PieceLocation> <NewLocation>, ex: move a2 a3"
-                            + SET_TEXT_EXPLANATION + " - input what move to make"
+                            + "\n" + SET_TEXT_COMMAND + "- move <PieceLocation> <NewLocation>"
+                            + SET_TEXT_EXPLANATION + " - input what move to make, example: move a2 a3"
                             + "\n" + SET_TEXT_COMMAND + "- resign"
                             + SET_TEXT_EXPLANATION + " - forfeit and end the game"
                             + "\n" + SET_TEXT_COMMAND + "- highlight <PieceLocation>"
@@ -270,6 +270,8 @@ public class ChessClient implements ServerMessageObserver {
                 board.resetBoard();
                 BoardPrinter boardPrinter = new BoardPrinter(board);
 
+                ws.joinGame(authToken,gameID);
+
                 state = State.GAMEPLAY;
 
                 if (params[1].equals("white")){
@@ -320,9 +322,9 @@ public class ChessClient implements ServerMessageObserver {
     public void notify(ServerMessage message) {
         switch(message.getServerMessageType()) {
             // Need to implement these methods to work properly with the UI
-            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+//            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+//            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+//            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
         }
     }
 }
