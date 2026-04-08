@@ -62,7 +62,7 @@ public class ChessClient implements ServerMessageObserver {
                     case "help" -> help();
                     default -> invalidInput();
                 };
-            } else {
+            } else if (state == State.SIGNEDIN) {
                 return switch (cmd) {
                     case "quit" -> "quit";
                     case "help" -> help();
@@ -71,6 +71,24 @@ public class ChessClient implements ServerMessageObserver {
                     case "create" -> createGame(params);
                     case "play" -> joinGame(params);
                     case "observe" -> observeGame(params);
+                    default -> invalidInput();
+                };
+            } else if (state == State.GAMEPLAY){
+                return switch (cmd) {
+                    case "help" -> help();
+//                    case "redraw" -> redraw();
+//                    case "leave" -> leave();
+//                    case "move" -> makeMove(params);
+//                    case "resign" -> resign();
+//                    case "highlight" -> highlight(params);
+                    default -> invalidInput();
+                };
+            } else {
+                return switch (cmd) {
+                    case "help" -> help();
+//                    case "redraw" -> redraw();
+//                    case "leave" -> leave();
+//                    case "highlight" -> highlight(params);
                     default -> invalidInput();
                 };
             }
@@ -97,21 +115,44 @@ public class ChessClient implements ServerMessageObserver {
                     + "\n" + SET_TEXT_COMMAND + "- quit"
                             + SET_TEXT_EXPLANATION + " - stop the chess program" + "\n";
 
+        } else if (state == State.SIGNEDIN) {
+            return
+                    SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
+                            + "\n" + SET_TEXT_COMMAND + "- create <gameName>"
+                            + SET_TEXT_EXPLANATION + " - create a new game with provided gameName"
+                            + "\n" + SET_TEXT_COMMAND + "- list"
+                            + SET_TEXT_EXPLANATION + " - list all the current games"
+                            + "\n" + SET_TEXT_COMMAND + "- play <gameNumber> <WHITE|BLACK>"
+                            + SET_TEXT_EXPLANATION + " - join a game with the provided gameNumber as WHITE or BLACK"
+                            + "\n" + SET_TEXT_COMMAND + "- observe <gameNumber>"
+                            + SET_TEXT_EXPLANATION + " - observe the game with the provided gameNumber"
+                            + "\n" + SET_TEXT_COMMAND + "- logout"
+                            + SET_TEXT_EXPLANATION + " - logout of account"
+                            + "\n" + SET_TEXT_COMMAND + "- quit"
+                            + SET_TEXT_EXPLANATION + " - stop the chess program" + "\n";
+        } else if (state == State.GAMEPLAY) {
+            return
+                    SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
+                            + "\n" + SET_TEXT_COMMAND + "- redraw"
+                            + SET_TEXT_EXPLANATION + " - completely redraw the chess board"
+                            + "\n" + SET_TEXT_COMMAND + "- leave"
+                            + SET_TEXT_EXPLANATION + " - leave the current game"
+                            + "\n" + SET_TEXT_COMMAND + "- move <PieceLocation> <NewLocation>, ex: move a2 a3"
+                            + SET_TEXT_EXPLANATION + " - input what move to make"
+                            + "\n" + SET_TEXT_COMMAND + "- resign"
+                            + SET_TEXT_EXPLANATION + " - forfeit and end the game"
+                            + "\n" + SET_TEXT_COMMAND + "- highlight <PieceLocation>"
+                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece";
+        } else {
+            return
+                    SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
+                            + "\n" + SET_TEXT_COMMAND + "- redraw"
+                            + SET_TEXT_EXPLANATION + " - completely redraw the chess board"
+                            + "\n" + SET_TEXT_COMMAND + "- leave"
+                            + SET_TEXT_EXPLANATION + " - leave the current game"
+                            + "\n" + SET_TEXT_COMMAND + "- highlight <PieceLocation>"
+                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece";
         }
-        return
-                SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
-                        + "\n" + SET_TEXT_COMMAND + "- create <gameName>"
-                        + SET_TEXT_EXPLANATION + " - create a new game with provided gameName"
-                        + "\n" + SET_TEXT_COMMAND + "- list"
-                        + SET_TEXT_EXPLANATION + " - list all the current games"
-                        + "\n" + SET_TEXT_COMMAND + "- play <gameNumber> <WHITE|BLACK>"
-                        + SET_TEXT_EXPLANATION + " - join a game with the provided gameNumber as WHITE or BLACK"
-                        + "\n" + SET_TEXT_COMMAND + "- observe <gameNumber>"
-                        + SET_TEXT_EXPLANATION + " - observe the game with the provided gameNumber"
-                        + "\n" + SET_TEXT_COMMAND + "- logout"
-                        + SET_TEXT_EXPLANATION + " - logout of account"
-                        + "\n" + SET_TEXT_COMMAND + "- quit"
-                        + SET_TEXT_EXPLANATION + " - stop the chess program" + "\n";
 
     }
 
@@ -225,12 +266,14 @@ public class ChessClient implements ServerMessageObserver {
                 ChessBoard board = new ChessBoard();
                 board.resetBoard();
                 BoardPrinter boardPrinter = new BoardPrinter(board);
+
+                state = State.GAMEPLAY;
+
                 if (params[1].equals("white")){
                     return boardPrinter.drawWhiteBoard();
                 } else {
                     return boardPrinter.drawBlackBoard();
                 }
-//                return "Successfully joined the game!";
             } catch (NumberFormatException ex) {
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
             } catch (ResponseException ex) {
@@ -252,6 +295,9 @@ public class ChessClient implements ServerMessageObserver {
                 ChessBoard board = new ChessBoard();
                 board.resetBoard();
                 BoardPrinter boardPrinter = new BoardPrinter(board);
+
+                state = State.OBSERVE;
+
                 return boardPrinter.drawWhiteBoard();
             } catch (NumberFormatException ex){
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
