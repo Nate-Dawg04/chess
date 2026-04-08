@@ -1,12 +1,11 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -21,14 +20,21 @@ public class ConnectionManager {
         connections.get(gameID).remove(session);
     }
 
-    public void broadcast(Session excludeSession, int gameID, ServerMessage message) throws IOException {
-        String msg = message.toString();
+    public void broadcast(Session excludeSession, int gameID, ServerMessage serverMessage) throws IOException {
+        Gson gson = new Gson();
         for (Session c : connections.get(gameID)) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
-                    c.getRemote().sendString(msg);
+                    c.getRemote().sendString(gson.toJson(serverMessage));
                 }
             }
+        }
+    }
+
+    public void notifyRootUser(Session session, ServerMessage serverMessage) throws IOException{
+        Gson gson = new Gson();
+        if (session.isOpen()){
+            session.getRemote().sendString(gson.toJson(serverMessage));
         }
     }
 }
