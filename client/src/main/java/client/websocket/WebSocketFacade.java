@@ -15,9 +15,9 @@ public class WebSocketFacade extends Endpoint {
     Session session;
     ServerMessageObserver serverMessageObserver;
 
-    public WebSocketFacade(String url, ServerMessageObserver serverMessageObserver) throws ResponseException {
+    public WebSocketFacade(int port, ServerMessageObserver serverMessageObserver) throws ResponseException {
         try {
-            url = url.replace("http", "ws");
+            String url = "ws://localhost:" + port;
             URI socketURI = new URI(url + "/ws");
             this.serverMessageObserver = serverMessageObserver;
 
@@ -26,8 +26,8 @@ public class WebSocketFacade extends Endpoint {
 
             //set message handler
             this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage message = new Gson().fromJson(message, ServerMessage.class);
-                serverMessageObserver.notify(message);
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                serverMessageObserver.notify(serverMessage);
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());

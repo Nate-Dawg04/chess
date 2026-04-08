@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessBoard;
 import client.websocket.ServerMessageObserver;
+import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import model.ListGamesGameData;
 import requests.*;
@@ -17,12 +18,14 @@ import static ui.EscapeSequences.*;
 
 public class ChessClient implements ServerMessageObserver {
     private final ServerFacade server;
+    private final WebSocketFacade ws;
     private State state = State.SIGNEDOUT;
     private String authToken;
     private LinkedHashMap<Integer, ListGamesGameData> mostRecentGames;
 
-    public ChessClient(int port){
+    public ChessClient(int port) throws ResponseException{
         server = new ServerFacade(port);
+        ws = new WebSocketFacade(port, this);
     }
 
     public void run() {
@@ -316,7 +319,7 @@ public class ChessClient implements ServerMessageObserver {
     @Override
     public void notify(ServerMessage message) {
         switch(message.getServerMessageType()) {
-            // Need to now implement these methods to work properly with the UI
+            // Need to implement these methods to work properly with the UI
             case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
             case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
             case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
