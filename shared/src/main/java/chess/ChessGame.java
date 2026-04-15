@@ -14,12 +14,14 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     ChessBoard board;
+    boolean isFinished;
 
     public ChessGame() {
         board = new ChessBoard();
         // Add all the pieces to the board
         board.resetBoard();
         setTeamTurn(TeamColor.WHITE);
+        isFinished = false;
     }
 
     /**
@@ -128,6 +130,12 @@ public class ChessGame {
             setTeamTurn(TeamColor.WHITE);
         } else {
             setTeamTurn(TeamColor.BLACK);
+        }
+
+        // If the game is now in checkmate or stalemate, mark it as finished
+        if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)
+                || isInStalemate(TeamColor.WHITE) || isInStalemate(TeamColor.BLACK)){
+            setGameState(true);
         }
     }
 
@@ -238,6 +246,24 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    /**
+     * Gets the current gameState (whether the game is finished)
+     *
+     * @return true if the game is finished, false if not
+     */
+    public boolean getGameState() {
+        return isFinished;
+    }
+
+    /**
+     * Sets the current gameState (whether the game is finished)
+     *
+     * @param isFinished whether the game is finished or not
+     */
+    public void setGameState(boolean isFinished){
+        this.isFinished = isFinished;
     }
 
     @Override
