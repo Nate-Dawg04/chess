@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
@@ -68,9 +69,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new BadRequestException("invalid gameId");
             }
 
-            // Add session? What does saveSession mean?
-//            connections.add(gameId, session);
-
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (UserGameCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, command);
@@ -102,10 +100,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 //        Server sends a Notification message to all other clients in that game informing them what move was made.
 //        If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
 
-//        Gson gson = new Gson();
         GameData thisGameData = gameDAO.getGameData(makeMoveCommand.getGameID());
         ChessGame chessGame = thisGameData.game();
+        ChessBoard board = chessGame.getBoard();
         try {
+            // Check if the user is attempting to make a move for the opponent somehow
+            if (board.getPiece(makeMoveCommand.getMove().getStartPosition()).getTeamColor() != chessGame.getTeamTurn()){
+                throw new InvalidMoveException("cannot move opponent's piece");
+            }
+
+            // Check if the user is attempting to move one of their opponent's pieces
+            if (username.equals(thisGameData.whiteUsername())){
+                if (board.getPiece(makeMoveCommand.getMove().getStartPosition()).getTeamColor() != ChessGame.TeamColor.WHITE){
+                    throw new InvalidMoveException("Cannot move an opponent's piece");
+                }
+            } else if (username.equals(thisGameData.blackUsername())) {
+                if (board.getPiece(makeMoveCommand.getMove().getStartPosition()).getTeamColor() != ChessGame.TeamColor.BLACK){
+                    throw new InvalidMoveException("Cannot move an opponent's piece");
+                }
+            } else {
+                // If they don't match either username, they're an observer and shouldn't be able to make a move
+                throw new InvalidMoveException("Observer cannot move pieces");
+            }
+
             // Make the move on the ChessGame (which checks it's validity, potentially throws InvalidMoveException)
             chessGame.makeMove(makeMoveCommand.getMove());
 
@@ -159,7 +176,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcast(null, makeMoveCommand.getGameID(), notificationMessage1);
             }
 
-        } catch (InvalidMoveException ex) {
+        } catch (Exception ex) {
             connections.notifyRootUser(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: " + ex.getMessage()));
         }
 
@@ -178,14 +195,5 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 //        connections.broadcast(session, notification);
 //        connections.remove(session);
 //    }
-//
-//    public void makeNoise(String petName, String sound) throws ResponseException {
-//        try {
-//            var message = String.format("%s says %s", petName, sound);
-//            var notification = new Notification(Notification.Type.NOISE, message);
-//            connections.broadcast(null, notification);
-//        } catch (Exception ex) {
-//            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
-//        }
-//    }
+
 }
