@@ -10,7 +10,6 @@ import dataaccess.UserDAO;
 import dataaccess.exceptions.BadRequestException;
 import dataaccess.exceptions.DatabaseException;
 import dataaccess.exceptions.UnauthorizedException;
-import exception.ResponseException;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -19,7 +18,6 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import server.Server;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -72,7 +70,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (UserGameCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, command);
-//                case LEAVE -> leaveGame(session, username, (UserGameCommand) command);
+                case LEAVE -> leaveGame(session, username, (UserGameCommand) command);
 //                case RESIGN → resign(session, username, (UserGameCommand) command);
             }
        } catch (Exception ex) {
@@ -94,11 +92,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void makeMove(Session session, String username, MakeMoveCommand makeMoveCommand) throws IOException, DatabaseException {
-//        Server verifies the validity of the move.
-//        Game is updated to represent the move. Game is updated in the database.
-//        Server sends a LOAD_GAME message to all clients in the game (including the root client) with an updated game.
-//        Server sends a Notification message to all other clients in that game informing them what move was made.
-//        If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
 
         GameData thisGameData = gameDAO.getGameData(makeMoveCommand.getGameID());
         ChessGame chessGame = thisGameData.game();
@@ -181,6 +174,37 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
     }
+
+
+    private void leaveGame(Session session, String username, UserGameCommand userGameCommand) throws DatabaseException, IOException{
+//        If a player is leaving, then the game is updated to remove the root client.
+//        Game is updated in the database.
+//        Server sends a Notification message to all other clients in that game informing them that the root client left.
+//        This applies to both players and observers.
+
+        // Remove the root client from the game
+        connections.remove(userGameCommand.getGameID(), session);
+
+        // Update the game in the database
+        // Remove the white or black username from the GameData, unless they're an observer
+        GameData original = gameDAO.getGameData(userGameCommand.getGameID());
+        GameData updated = new GameData(original.gameID(),
+                original.whiteUsername(), original.blackUsername(), original.gameName(), original.game());
+        if (username.equals(original.whiteUsername())){
+            updated = new GameData(original.gameID(),
+                    null, original.blackUsername(), original.gameName(), original.game());
+        } else if (username.equals(original.blackUsername())) {
+            updated = new GameData(original.gameID(),
+                    original.whiteUsername(), null, original.gameName(), original.game());
+        }
+
+        gameDAO.replaceGame(userGameCommand.getGameID(), updated);
+
+        var message = String.format("%s has left the game", username);
+        NotificationMessage leaveMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
+        connections.broadcast(session, userGameCommand.getGameID(), leaveMessage);
+    }
+
 
 //    private void enter(String visitorName, Session session) throws IOException {
 //        connections.add(session);
