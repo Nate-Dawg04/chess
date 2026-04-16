@@ -1,6 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
+import chess.*;
 import client.websocket.ServerMessageObserver;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
@@ -22,6 +22,10 @@ public class ChessClient implements ServerMessageObserver {
     private State state = State.SIGNEDOUT;
     private String authToken;
     private LinkedHashMap<Integer, ListGamesGameData> mostRecentGames;
+    private int currentGameReferenceNum;
+    private ChessGame currentChessGame;
+    private ChessGame.TeamColor currentUserColor;
+    private final Object consoleLock = new Object();
 
     public ChessClient(int port) throws ResponseException{
         server = new ServerFacade(port);
@@ -35,15 +39,21 @@ public class ChessClient implements ServerMessageObserver {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
+
             printPrompt();
+
             String line = scanner.nextLine();
 
             try {
                 result = eval(line);
+
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
+
             } catch (Throwable e) {
                 var msg = e.toString();
+
                 System.out.print(msg);
+
             }
         }
         System.out.println();
@@ -51,6 +61,7 @@ public class ChessClient implements ServerMessageObserver {
 
     private void printPrompt() {
         System.out.print("\n" + RESET_ALL + "CHESS GAME >>> " + SET_TEXT_COLOR_GREEN);
+
     }
 
     public String eval(String input) {
@@ -79,9 +90,9 @@ public class ChessClient implements ServerMessageObserver {
             } else if (state == State.GAMEPLAY){
                 return switch (cmd) {
                     case "help" -> help();
-//                    case "redraw" -> redraw();
-//                    case "leave" -> leave();
-//                    case "move" -> makeMove(params);
+                    case "redraw" -> redraw();
+                    case "leave" -> leave();
+                    case "move" -> makeMove(params);
 //                    case "resign" -> resign();
 //                    case "highlight" -> highlight(params);
                     default -> invalidInput();
@@ -89,8 +100,8 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 return switch (cmd) {
                     case "help" -> help();
-//                    case "redraw" -> redraw();
-//                    case "leave" -> leave();
+                    case "redraw" -> redraw();
+                    case "leave" -> leave();
 //                    case "highlight" -> highlight(params);
                     default -> invalidInput();
                 };
@@ -145,7 +156,7 @@ public class ChessClient implements ServerMessageObserver {
                             + "\n" + SET_TEXT_COMMAND + "- resign"
                             + SET_TEXT_EXPLANATION + " - forfeit and end the game"
                             + "\n" + SET_TEXT_COMMAND + "- highlight <PieceLocation>"
-                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece";
+                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece"  + "\n";
         } else {
             return
                     SET_TEXT_COMMAND + "- help" + SET_TEXT_EXPLANATION + " - view all commands"
@@ -154,7 +165,7 @@ public class ChessClient implements ServerMessageObserver {
                             + "\n" + SET_TEXT_COMMAND + "- leave"
                             + SET_TEXT_EXPLANATION + " - leave the current game"
                             + "\n" + SET_TEXT_COMMAND + "- highlight <PieceLocation>"
-                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece";
+                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece, ex: highlight a2"  + "\n";
         }
 
     }
@@ -266,19 +277,14 @@ public class ChessClient implements ServerMessageObserver {
                     gameID = mostRecentGames.get(Integer.parseInt(params[0])).gameID();
                 }
                 server.joinGame(new JoinGameRequest(authToken,params[1].toUpperCase(),gameID));
-                ChessBoard board = new ChessBoard();
-                board.resetBoard();
-                BoardPrinter boardPrinter = new BoardPrinter(board);
+
+                currentGameReferenceNum = Integer.parseInt(params[0]);
 
                 ws.joinGame(authToken,gameID);
 
                 state = State.GAMEPLAY;
 
-                if (params[1].equals("white")){
-                    return boardPrinter.drawWhiteBoard();
-                } else {
-                    return boardPrinter.drawBlackBoard();
-                }
+                return "Joined Game";
             } catch (NumberFormatException ex) {
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
             } catch (ResponseException ex) {
@@ -293,23 +299,103 @@ public class ChessClient implements ServerMessageObserver {
     public String observeGame(String... params) throws ResponseException{
         if (params.length == 1) {
             try {
+                if (mostRecentGames == null){
+                    throw new ResponseException(ResponseException.Code.ClientError,"Please listGames first");
+                }
+
                 if (mostRecentGames.get(Integer.parseInt(params[0])) == null){
                     throw new ResponseException(ResponseException.Code.ClientError,
                             "No games match the provided game number");
                 }
-                ChessBoard board = new ChessBoard();
-                board.resetBoard();
-                BoardPrinter boardPrinter = new BoardPrinter(board);
 
+                currentUserColor = ChessGame.TeamColor.WHITE;
+                currentGameReferenceNum = Integer.parseInt(params[0]);
+                ws.joinGame(authToken,mostRecentGames.get(currentGameReferenceNum).gameID());
                 state = State.OBSERVE;
 
-                return boardPrinter.drawWhiteBoard();
+                return "Now observing game";
             } catch (NumberFormatException ex){
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
             }
 
+        } else {
+            throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameNumber>");
         }
-        throw new ResponseException(ResponseException.Code.ClientError,"Expected: <gameNumber>");
+    }
+
+    public String leave() throws ResponseException {
+        try {
+            ws.leaveGame(authToken, mostRecentGames.get(currentGameReferenceNum).gameID());
+            state = State.SIGNEDIN;
+            return "You left the game";
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ClientError, "Error: " + ex.getMessage());
+        }
+    }
+
+    public String makeMove(String... params) throws ResponseException {
+        try {
+            if (params.length < 2 || params.length > 3){
+                throw new ResponseException(ResponseException.Code.ClientError,"Expected: move <PieceLocation> <NewLocation>");
+            }
+            if (params[0].length() != 2 || params[1].length() != 2){
+                throw new ResponseException(ResponseException.Code.ClientError,"Please enter valid moves, examples: a3, b5, etc.");
+            }
+
+            char[] startMoveString = params[0].toCharArray();
+            char[] endMoveString = params[1].toCharArray();
+
+            // Check to see that they're valid moves that were input
+            if (!Character.isLetter(startMoveString[0]) || !Character.isLetter(endMoveString[0])){
+                throw new ResponseException(ResponseException.Code.ClientError,"First character in a move must be letter a-h");
+            }
+
+            if (!Character.isDigit(startMoveString[1]) || !Character.isDigit(endMoveString[1])){
+                throw new ResponseException(ResponseException.Code.ClientError,"Second character in a move must be number 1-8");
+            }
+
+            int startMoveCol = startMoveString[0] - 'a' + 1;
+            int endMoveCol = endMoveString[0] - 'a' + 1;
+            if (startMoveCol < 1 || startMoveCol > 8 || endMoveCol < 1 || endMoveCol > 8){
+                throw new ResponseException(ResponseException.Code.ClientError,"First character in a move must be letter a-h");
+            }
+            int startMoveRow = Character.getNumericValue(startMoveString[1]);
+            int endMoveRow = Character.getNumericValue(endMoveString[1]);
+            if (startMoveRow < 1 || startMoveRow > 8 || endMoveRow < 1 || endMoveRow > 8){
+                throw new ResponseException(ResponseException.Code.ClientError,"Second character in a move must be number 1-8");
+            }
+
+            ChessPosition startPosition = new ChessPosition(startMoveRow,startMoveCol);
+            ChessPosition endPosition = new ChessPosition(endMoveRow,endMoveCol);
+
+            // Check if a piece is being promoted. If so, ask for the promotion piece
+            ChessPiece.PieceType promotionPieceType = null;
+
+            if(currentChessGame.getBoard().getPiece(startPosition) == null){
+                throw new ResponseException(ResponseException.Code.ClientError,"No piece in this position");
+            }
+
+            ChessPiece.PieceType pieceType = currentChessGame.getBoard().getPiece(startPosition).getPieceType();
+            if ((endMoveRow == 8 || endMoveRow == 1) && (pieceType.equals(ChessPiece.PieceType.PAWN))){
+                promotionPieceType = getPromotionPiece();
+            }
+
+            System.out.printf("Attempting move from %d %d to %d %d",startMoveRow,startMoveCol,endMoveRow,endMoveCol);
+            ChessMove move = new ChessMove(startPosition,endPosition,promotionPieceType);
+            ws.makeMove(authToken, mostRecentGames.get(currentGameReferenceNum).gameID(),move);
+            return "Successfully made move";
+        } catch (Exception ex) {
+            throw new ResponseException(ResponseException.Code.ClientError, "Error: " + ex.getMessage());
+        }
+    }
+
+    public String redraw(){
+        BoardPrinter boardPrinter = new BoardPrinter(currentChessGame.getBoard());
+        if(currentUserColor == ChessGame.TeamColor.WHITE){
+            return boardPrinter.drawWhiteBoard();
+        } else {
+            return boardPrinter.drawBlackBoard();
+        }
     }
 
     private void assertSignedIn() throws ResponseException {
@@ -321,10 +407,69 @@ public class ChessClient implements ServerMessageObserver {
     @Override
     public void notify(ServerMessage message) {
         switch(message.getServerMessageType()) {
-            // Need to implement these methods to work properly with the UI
-//            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-//            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-//            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+            case NOTIFICATION -> displayMessage(((NotificationMessage) message).getMessage());
+            case ERROR -> displayMessage(((ErrorMessage) message).getErrorMessage());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
         }
     }
+
+    private void loadGame(ChessGame game) {
+        BoardPrinter boardPrinter = new BoardPrinter(game.getBoard());
+        currentChessGame = game;
+
+        System.out.println();
+        if (currentUserColor == ChessGame.TeamColor.WHITE) {
+            System.out.print(boardPrinter.drawWhiteBoard());
+        } else {
+            System.out.print(boardPrinter.drawBlackBoard());
+        }
+        printPrompt();
+    }
+
+    private void displayMessage(String message) {
+        System.out.println(SET_TEXT_COLOR_GREEN + message);
+        printPrompt();
+
+    }
+
+    private ChessPiece.PieceType getPromotionPiece(){
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please enter a promotion piece type");
+        System.out.println("Options: QUEEN, BISHOP, ROOK, KNIGHT");
+
+
+        while (true) {
+            try {
+                printPrompt();
+                String line = scanner.nextLine();
+                String[] tokens = line.toLowerCase().split("\\s+");
+                String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+
+                switch (params[0]) {
+                    case "queen" -> {
+                        return ChessPiece.PieceType.QUEEN;
+                    }
+                    case "rook" -> {
+                        return ChessPiece.PieceType.ROOK;
+                    }
+                    case "knight" -> {
+                        return ChessPiece.PieceType.KNIGHT;
+                    }
+                    case "bishop" -> {
+                        return ChessPiece.PieceType.BISHOP;
+                    }
+                    default -> System.out.printf(SET_TEXT_COLOR_RED
+                            + "Invalid input, please enter QUEEN, BISHOP, ROOK, or KNIGHT" + "\n");
+                }
+            } catch (Exception e) {
+                var msg = e.toString();
+                System.out.print(msg);
+            }
+        }
+    }
+
+
+
+
 }

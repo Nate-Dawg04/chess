@@ -18,7 +18,6 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.GameData;
-import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.*;
 import websocket.messages.*;
@@ -90,7 +89,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // This lowkey might not be the best way of doing it
         // Not sure if the gameDAO will already be updated with the correct information at this point...
-        // In which case if will always display the observing message
+        // In which case it will always display the observing message
 
         String message;
         if (username.equals(gameDAO.getGameData(userGameCommand.getGameID()).whiteUsername())){
@@ -196,7 +195,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-
     private void leaveGame(Session session, String username, UserGameCommand userGameCommand) throws DatabaseException, IOException{
         // Remove the root client from the game
         connections.remove(userGameCommand.getGameID(), session);
@@ -221,25 +219,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, userGameCommand.getGameID(), leaveMessage);
     }
 
-    private void resign(Session session, String username, UserGameCommand userGameCommand) throws DatabaseException, IOException{
-        //Server marks the game as over (no more moves can be made).
-        // Game is updated in the database.
-        //Server sends a Notification message to all clients in that game informing them that the root client resigned.
-        // This applies to both players and observers.
+    private void resign(Session session, String username, UserGameCommand userGameCommand) throws IOException{
         try {
             GameData thisGameData = gameDAO.getGameData(userGameCommand.getGameID());
 
-            // Check to make sure the user is one of the users
+            // Check to make sure the user is one of the players
             if(!username.equals(thisGameData.whiteUsername()) && !username.equals(thisGameData.blackUsername())){
                 throw new ResponseException(ResponseException.Code.ClientError,"Observer cannot resign from a game");
             }
 
             ChessGame chessGame = thisGameData.game();
+
+            //Check to make sure the game isn't finished already
             if (chessGame.getGameState()){
                 throw new ResponseException(ResponseException.Code.ClientError,"Game is already finished");
             }
 
+            // Mark the game as finished
             chessGame.setGameState(true);
+
             // This might be unnecessary
             // Could maybe just pass in "thisGameData" to replaceGame and it will update
             GameData updated = new GameData(thisGameData.gameID(),
@@ -253,14 +251,4 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.notifyRootUser(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: " + ex.getMessage()));
         }
     }
-
-
-//
-//    private void exit(String visitorName, Session session) throws IOException {
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(Notification.Type.DEPARTURE, message);
-//        connections.broadcast(session, notification);
-//        connections.remove(session);
-//    }
-
 }

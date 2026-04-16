@@ -1,15 +1,18 @@
 package client.websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
 import exception.ResponseException;
 
 import jakarta.websocket.*;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.commands.*;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
 
@@ -26,11 +29,19 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                serverMessageObserver.notify(serverMessage);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @OnMessage
+                public void onMessage(String message){
+                    try {
+//                        System.out.println("REACHED THE MESSAGE HANDLER");
+                        ServerMessage serverMessage = createMessageSerializer().fromJson(message, ServerMessage.class);
+                        serverMessageObserver.notify(serverMessage);
+                    } catch (Exception ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                }
             });
-        } catch (DeploymentException | IOException | URISyntaxException ex) {
+        } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
@@ -48,4 +59,54 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
+
+    public void makeMove(String authToken, int gameId, ChessMove move) throws ResponseException {
+        try {
+            MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken,gameId,move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex){
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public void leaveGame(String authToken,int gameID) throws ResponseException {
+        try {
+            var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken,gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public void resign(String authToken,int gameID) throws ResponseException {
+        try {
+            var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken,gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (IOException ex) {
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public static Gson createMessageSerializer() {
+        GsonBuilder builder = new GsonBuilder();
+
+        builder.registerTypeAdapter(ServerMessage.class,
+                (JsonDeserializer<ServerMessage>) (el, type, ctx) -> {
+
+                    JsonObject obj = el.getAsJsonObject();
+                    String typeName = obj.get("serverMessageType").getAsString();
+
+                    return switch (ServerMessage.ServerMessageType.valueOf(typeName)) {
+                        case NOTIFICATION ->
+                                ctx.deserialize(el, NotificationMessage.class);
+                        case ERROR ->
+                                ctx.deserialize(el, ErrorMessage.class);
+                        case LOAD_GAME ->
+                                ctx.deserialize(el, LoadGameMessage.class);
+                    };
+                });
+
+        return builder.create();
+    }
+
 }
