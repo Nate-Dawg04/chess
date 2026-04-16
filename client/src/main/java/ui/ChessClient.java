@@ -9,10 +9,7 @@ import requests.*;
 import server.ServerFacade;
 import websocket.messages.*;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -280,6 +277,12 @@ public class ChessClient implements ServerMessageObserver {
 
                 currentGameReferenceNum = Integer.parseInt(params[0]);
 
+                if(params[1].equals("white")){
+                    currentUserColor = ChessGame.TeamColor.WHITE;
+                } else {
+                    currentUserColor = ChessGame.TeamColor.BLACK;
+                }
+
                 ws.joinGame(authToken,gameID);
 
                 state = State.GAMEPLAY;
@@ -342,6 +345,11 @@ public class ChessClient implements ServerMessageObserver {
                 throw new ResponseException(ResponseException.Code.ClientError,"Please enter valid moves, examples: a3, b5, etc.");
             }
 
+            //Check if it's the other player's turn
+            if (!currentUserColor.equals(currentChessGame.getTeamTurn())){
+                throw new ResponseException(ResponseException.Code.ClientError, "Other player's turn");
+            }
+
 
             ChessPosition startPosition = getChessPosition(params[0]);
             ChessPosition endPosition = getChessPosition(params[1]);
@@ -360,6 +368,12 @@ public class ChessClient implements ServerMessageObserver {
 
 //            System.out.printf("Attempting move from %d %d to %d %d",startMoveRow,startMoveCol,endMoveRow,endMoveCol);
             ChessMove move = new ChessMove(startPosition,endPosition,promotionPieceType);
+
+            Collection<ChessMove> validMoves = currentChessGame.validMoves(startPosition);
+            if (!validMoves.contains(move)){
+                throw new ResponseException(ResponseException.Code.ClientError, "Invalid move");
+            }
+
             ws.makeMove(authToken, mostRecentGames.get(currentGameReferenceNum).gameID(),move);
             return "\n";
         } catch (Exception ex) {
@@ -409,6 +423,20 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
+    private String highlight(String... params) throws ResponseException {
+        try {
+            if (params.length != 1){
+                throw new ResponseException(ResponseException.Code.ClientError,"highlight <PieceLocation>");
+            }
+
+            BoardPrinter boardPrinter = new BoardPrinter(currentChessGame.getBoard());
+            ChessPosition chessPosition = getChessPosition(params[0]);
+            return boardPrinter.highlight(chessPosition,currentChessGame,currentUserColor);
+        } catch (Exception ex){
+            throw new ResponseException(ResponseException.Code.ClientError, ex.getMessage());
+        }
+    }
+
     private void assertSignedIn() throws ResponseException {
         if (state == State.SIGNEDOUT) {
             throw new ResponseException(ResponseException.Code.ClientError, "You must sign in");
@@ -452,11 +480,14 @@ public class ChessClient implements ServerMessageObserver {
         while (true) {
             try {
                 printPrompt();
-                String line = scanner.nextLine();
-                String[] tokens = line.toLowerCase().split("\\s+");
-                String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+                String line = scanner.nextLine().trim().toLowerCase();
 
-                switch (params[0]) {
+                if (line.isEmpty()) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Please enter QUEEN, BISHOP, ROOK, or KNIGHT");
+                    continue;
+                }
+
+                switch (line) {
                     case "queen" -> {
                         return ChessPiece.PieceType.QUEEN;
                     }
