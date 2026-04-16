@@ -93,8 +93,8 @@ public class ChessClient implements ServerMessageObserver {
                     case "redraw" -> redraw();
                     case "leave" -> leave();
                     case "move" -> makeMove(params);
-//                    case "resign" -> resign();
-//                    case "highlight" -> highlight(params);
+                    case "resign" -> resign();
+                    case "highlight" -> highlight(params);
                     default -> invalidInput();
                 };
             } else {
@@ -102,7 +102,7 @@ public class ChessClient implements ServerMessageObserver {
                     case "help" -> help();
                     case "redraw" -> redraw();
                     case "leave" -> leave();
-//                    case "highlight" -> highlight(params);
+                    case "highlight" -> highlight(params);
                     default -> invalidInput();
                 };
             }
@@ -284,7 +284,7 @@ public class ChessClient implements ServerMessageObserver {
 
                 state = State.GAMEPLAY;
 
-                return "Joined Game";
+                return "\n";
             } catch (NumberFormatException ex) {
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
             } catch (ResponseException ex) {
@@ -313,7 +313,7 @@ public class ChessClient implements ServerMessageObserver {
                 ws.joinGame(authToken,mostRecentGames.get(currentGameReferenceNum).gameID());
                 state = State.OBSERVE;
 
-                return "Now observing game";
+                return "\nNow observing game\n";
             } catch (NumberFormatException ex){
                 throw new ResponseException(ResponseException.Code.ClientError, "gameNumber must be a valid integer");
             }
@@ -342,31 +342,9 @@ public class ChessClient implements ServerMessageObserver {
                 throw new ResponseException(ResponseException.Code.ClientError,"Please enter valid moves, examples: a3, b5, etc.");
             }
 
-            char[] startMoveString = params[0].toCharArray();
-            char[] endMoveString = params[1].toCharArray();
 
-            // Check to see that they're valid moves that were input
-            if (!Character.isLetter(startMoveString[0]) || !Character.isLetter(endMoveString[0])){
-                throw new ResponseException(ResponseException.Code.ClientError,"First character in a move must be letter a-h");
-            }
-
-            if (!Character.isDigit(startMoveString[1]) || !Character.isDigit(endMoveString[1])){
-                throw new ResponseException(ResponseException.Code.ClientError,"Second character in a move must be number 1-8");
-            }
-
-            int startMoveCol = startMoveString[0] - 'a' + 1;
-            int endMoveCol = endMoveString[0] - 'a' + 1;
-            if (startMoveCol < 1 || startMoveCol > 8 || endMoveCol < 1 || endMoveCol > 8){
-                throw new ResponseException(ResponseException.Code.ClientError,"First character in a move must be letter a-h");
-            }
-            int startMoveRow = Character.getNumericValue(startMoveString[1]);
-            int endMoveRow = Character.getNumericValue(endMoveString[1]);
-            if (startMoveRow < 1 || startMoveRow > 8 || endMoveRow < 1 || endMoveRow > 8){
-                throw new ResponseException(ResponseException.Code.ClientError,"Second character in a move must be number 1-8");
-            }
-
-            ChessPosition startPosition = new ChessPosition(startMoveRow,startMoveCol);
-            ChessPosition endPosition = new ChessPosition(endMoveRow,endMoveCol);
+            ChessPosition startPosition = getChessPosition(params[0]);
+            ChessPosition endPosition = getChessPosition(params[1]);
 
             // Check if a piece is being promoted. If so, ask for the promotion piece
             ChessPiece.PieceType promotionPieceType = null;
@@ -376,18 +354,19 @@ public class ChessClient implements ServerMessageObserver {
             }
 
             ChessPiece.PieceType pieceType = currentChessGame.getBoard().getPiece(startPosition).getPieceType();
-            if ((endMoveRow == 8 || endMoveRow == 1) && (pieceType.equals(ChessPiece.PieceType.PAWN))){
+            if ((endPosition.getRow() == 8 || endPosition.getRow() == 1) && (pieceType.equals(ChessPiece.PieceType.PAWN))){
                 promotionPieceType = getPromotionPiece();
             }
 
-            System.out.printf("Attempting move from %d %d to %d %d",startMoveRow,startMoveCol,endMoveRow,endMoveCol);
+//            System.out.printf("Attempting move from %d %d to %d %d",startMoveRow,startMoveCol,endMoveRow,endMoveCol);
             ChessMove move = new ChessMove(startPosition,endPosition,promotionPieceType);
             ws.makeMove(authToken, mostRecentGames.get(currentGameReferenceNum).gameID(),move);
-            return "Successfully made move";
+            return "\n";
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ClientError, "Error: " + ex.getMessage());
         }
     }
+
 
     public String redraw(){
         BoardPrinter boardPrinter = new BoardPrinter(currentChessGame.getBoard());
@@ -395,6 +374,38 @@ public class ChessClient implements ServerMessageObserver {
             return boardPrinter.drawWhiteBoard();
         } else {
             return boardPrinter.drawBlackBoard();
+        }
+    }
+
+    public String resign() throws ResponseException{
+        System.out.println("Are you sure you want to resign? The game will be finished...");
+        System.out.println("Enter YES or NO");
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                printPrompt();
+                String line = scanner.nextLine().trim().toLowerCase();
+
+                if (line.isEmpty()) {
+                    System.out.println(SET_TEXT_COLOR_RED + "Please enter YES or NO");
+                    continue;
+                }
+
+                switch (line) {
+                    case "yes" -> {
+                        ws.resign(authToken, mostRecentGames.get(currentGameReferenceNum).gameID());
+                        return "\nSuccessful resignation\n";
+                    }
+                    case "no" -> {
+                        return "\nRemaining in the game\n";
+                    }
+                    default -> System.out.println(SET_TEXT_COLOR_RED + "Please enter YES or NO");
+                }
+            } catch (Exception e) {
+                var msg = e.toString();
+                System.out.print(msg);
+            }
         }
     }
 
@@ -438,7 +449,6 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Please enter a promotion piece type");
         System.out.println("Options: QUEEN, BISHOP, ROOK, KNIGHT");
 
-
         while (true) {
             try {
                 printPrompt();
@@ -467,6 +477,53 @@ public class ChessClient implements ServerMessageObserver {
                 System.out.print(msg);
             }
         }
+    }
+
+    private ChessPosition getChessPosition(String input) throws ResponseException {
+        if (input == null || input.length() != 2) {
+            throw new ResponseException(
+                    ResponseException.Code.ClientError,
+                    "Please enter valid moves, examples: a3, b5, etc."
+            );
+        }
+
+        char file = Character.toLowerCase(input.charAt(0));
+        char rank = input.charAt(1);
+
+        // Check that the first character is a letter
+        if (!Character.isLetter(file)) {
+            throw new ResponseException(
+                    ResponseException.Code.ClientError,
+                    "First character in a move must be letter a-h"
+            );
+        }
+
+        // Check that the second character is a number
+        if (!Character.isDigit(rank)) {
+            throw new ResponseException(
+                    ResponseException.Code.ClientError,
+                    "Second character in a move must be number 1-8"
+            );
+        }
+
+        int col = file - 'a' + 1;
+        int row = Character.getNumericValue(rank);
+
+        // Check if the row and column are within bounds
+        if (col < 1 || col > 8) {
+            throw new ResponseException(
+                    ResponseException.Code.ClientError,
+                    "First character in a move must be letter a-h"
+            );
+        }
+        if (row < 1 || row > 8) {
+            throw new ResponseException(
+                    ResponseException.Code.ClientError,
+                    "Second character in a move must be number 1-8"
+            );
+        }
+
+        return new ChessPosition(row, col);
     }
 
 
