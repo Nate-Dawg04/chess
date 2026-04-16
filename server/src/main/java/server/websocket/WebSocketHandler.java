@@ -75,7 +75,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case RESIGN -> resign(session, username, (UserGameCommand) command);
             }
        } catch (Exception ex) {
-            connections.notifyRootUser(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: " + ex.getMessage()));
+            connections.notifyRootUser(session, new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Error: " + ex.getMessage()));
         }
     }
 
@@ -84,7 +85,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(Session session, String username, UserGameCommand userGameCommand) throws IOException, DatabaseException {
+    private void connect(Session session, String username, UserGameCommand userGameCommand)
+            throws IOException, DatabaseException {
         connections.add(userGameCommand.getGameID(), session);
 
         // This lowkey might not be the best way of doing it
@@ -101,12 +103,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         // Different message if the user is joining as an observer
-        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
+        NotificationMessage notificationMessage =
+                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,message);
         connections.broadcast(session,userGameCommand.getGameID(),notificationMessage);
-        connections.notifyRootUser(session,new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,gameDAO.getGameData(userGameCommand.getGameID()).game()));
+        connections.notifyRootUser(session,new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                gameDAO.getGameData(userGameCommand.getGameID()).game()));
     }
 
-    private void makeMove(Session session, String username, MakeMoveCommand makeMoveCommand) throws IOException, DatabaseException {
+    private void makeMove(Session session, String username, MakeMoveCommand makeMoveCommand)
+            throws IOException, DatabaseException {
 
         GameData thisGameData = gameDAO.getGameData(makeMoveCommand.getGameID());
         ChessGame chessGame = thisGameData.game();
@@ -195,7 +200,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void leaveGame(Session session, String username, UserGameCommand userGameCommand) throws DatabaseException, IOException{
+    private void leaveGame(Session session, String username, UserGameCommand userGameCommand)
+            throws DatabaseException, IOException{
         // Remove the root client from the game
         connections.remove(userGameCommand.getGameID(), session);
 
@@ -219,7 +225,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, userGameCommand.getGameID(), leaveMessage);
     }
 
-    private void resign(Session session, String username, UserGameCommand userGameCommand) throws IOException{
+    private void resign(Session session, String username, UserGameCommand userGameCommand)
+            throws IOException{
         try {
             GameData thisGameData = gameDAO.getGameData(userGameCommand.getGameID());
 

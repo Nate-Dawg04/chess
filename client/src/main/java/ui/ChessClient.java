@@ -22,7 +22,6 @@ public class ChessClient implements ServerMessageObserver {
     private int currentGameReferenceNum;
     private ChessGame currentChessGame;
     private ChessGame.TeamColor currentUserColor;
-    private final Object consoleLock = new Object();
 
     public ChessClient(int port) throws ResponseException{
         server = new ServerFacade(port);
@@ -162,7 +161,8 @@ public class ChessClient implements ServerMessageObserver {
                             + "\n" + SET_TEXT_COMMAND + "- leave"
                             + SET_TEXT_EXPLANATION + " - leave the current game"
                             + "\n" + SET_TEXT_COMMAND + "- highlight <PieceLocation>"
-                            + SET_TEXT_EXPLANATION + " - highlights all legal moves for the provided piece, ex: highlight a2"  + "\n";
+                            + SET_TEXT_EXPLANATION
+                            + " - highlights all legal moves for the provided piece, ex: highlight a2"  + "\n";
         }
 
     }
@@ -339,10 +339,12 @@ public class ChessClient implements ServerMessageObserver {
     public String makeMove(String... params) throws ResponseException {
         try {
             if (params.length < 2 || params.length > 3){
-                throw new ResponseException(ResponseException.Code.ClientError,"Expected: move <PieceLocation> <NewLocation>");
+                throw new ResponseException(ResponseException.Code.ClientError,
+                        "Expected: move <PieceLocation> <NewLocation>");
             }
             if (params[0].length() != 2 || params[1].length() != 2){
-                throw new ResponseException(ResponseException.Code.ClientError,"Please enter valid moves, examples: a3, b5, etc.");
+                throw new ResponseException(ResponseException.Code.ClientError,
+                        "Please enter valid moves, examples: a3, b5, etc.");
             }
 
             //Check if it's the other player's turn
@@ -362,7 +364,8 @@ public class ChessClient implements ServerMessageObserver {
             }
 
             ChessPiece.PieceType pieceType = currentChessGame.getBoard().getPiece(startPosition).getPieceType();
-            if ((endPosition.getRow() == 8 || endPosition.getRow() == 1) && (pieceType.equals(ChessPiece.PieceType.PAWN))){
+            if ((endPosition.getRow() == 8 || endPosition.getRow() == 1)
+                    && (pieceType.equals(ChessPiece.PieceType.PAWN))){
                 promotionPieceType = getPromotionPiece();
             }
 
